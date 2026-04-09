@@ -20,9 +20,13 @@ I want to end this work session cleanly. Do this in order:
 
 3. **Do not update the docs yourself** — the progress-tracker owns that file format. Your job is to produce a clean handoff and delegate.
 
-4. **After the progress-tracker reports back**, print a final line:
+4. **After the progress-tracker reports back**, check git state and commit the session's work. Run `git status` to see what's outstanding. Stage and commit the session's work as a single commit (or a small number of logical commits if unrelated concerns landed in the same session — e.g. a skill/config patch that deserves its own commit). Include the doc updates (`docs/progress.md`, `docs/knowledge-base.md`, `docs/decisions.md`) alongside the code changes so the session is captured atomically. Do NOT push. Do NOT pause to ask for confirmation before committing — the commit is part of the end-session flow.
+
+5. **After committing**, run `git status` one more time to confirm the working tree is clean (or to surface anything that was intentionally left uncommitted, e.g. untracked work-in-progress files that aren't part of the session).
+
+6. **Print a final line:**
    ```
    Session ended. Resume with /start-session in your next Claude Code session.
    ```
 
-5. **Do not run builds, tests, or new work after this point.** If the build is broken, say so in "Blockers" — don't try to fix it in the closing session.
+7. **Do not run builds, tests, or new work after this point.** If the build is broken, say so in "Blockers" — don't try to fix it in the closing session.

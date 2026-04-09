@@ -7,27 +7,29 @@
 - [x] Phase 3 — CSS architecture
 - [x] Phase 4 — TypeScript interactive modules
 - [x] Phase 5 — Content & templates
-- [ ] Phase 6 — Integration, polish, deploy
+- [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-09
-- CSS prefatory pass: carousel component styles added to `src/styles/components.css`; reveal fallback classes (`.reveal-fade-up`, `.reveal-fade-in`, `.reveal-scale-in`, `.revealed`, `.no-transition`) added to `src/styles/animations.css` gated by `@supports not (animation-timeline: view())`; `data-reveal="fade-up"` mirrored into the native CSS path via selector alias on the `slide` rule
-- Six HTML templates shipped in `src/templates/`: `base.html`, `home.html`, `article.html`, `article-list.html`, `project.html`, `project-list.html` — semantic HTML, skip link, OG tags, `data-module` wiring for nav/theme-toggle/scroll-reveal
-- Four sample markdown files added under `src/content/`: `articles/building-this-site.md`, `articles/modern-css-is-amazing.md`, `projects/context-base.md`, `projects/mcp-snowflake.md` — full frontmatter, real prose (kept per Matt's direction; see prospective rule change)
-- Build pipeline now generates 7 real pages: home, articles list, 2 articles, projects list, 2 projects; `main.css` ~5.97 KB gz (up from 5.5 KB baseline)
-- `build/pages.ts` slot contract expanded: added `page_title` (raw h1, no site-name suffix), `page_url` (canonical absolute URL for `og:url`), `SITE_ORIGIN = "https://mattnoth.dev"` constant; dropped dead `meta` slot
-- Reviewer audit found 3 blocking fixes (all landed): `og:url` meta tag in `base.html`, `<h1>` suffix decoupling via `page_title` slot, `data-reveal="fade-up"` in native CSS path
-- `CLAUDE.md` updated: new "Phase execution rules" section (vocabulary reconciliation, slot pre-flight, dependency graph, CSS class constraint); Voice rule clarified — "no lorem ipsum" applies to deploy-ready content only
-- `docs/prompts/05-content.md` rewritten to spec lorem-ipsum scaffolding instead of real prose
+## Last session — 2026-04-09 (Phase 6)
+- Baseline verified: typecheck + build clean; 10 expected dist files; bundle budgets healthy
+- `data-reveal` vocabulary fully reconciled in `src/styles/animations.css`: explicit selectors for `fade-up`, `fade-in`, `scale-in`; dead `slide`/`scale` aliases removed
+- 12 previously-unstyled template classes added to `src/styles/components.css` with `prefers-reduced-motion` overrides: `.article-header`, `.article-meta`, `.article-footer`, `.project-header`, `.project-links`, `.project-footer`, `.page-header`, `.page-header__lead`, `.nav__controls`, `.back-link`, `.reading-time`, `.tech-stack`
+- `build/sitemap.ts` (NEW): `generateSitemap(articles, projects)` writes `dist/sitemap.xml` with 7 URLs and `<lastmod>` on articles; `SITE_ORIGIN` exported from `build/pages.ts` and reused; wired into `build/build.ts` as `stepSitemap` after `stepPages`
+- `src/robots.txt` (NEW) and `src/favicon.svg` (NEW — amber "M" rounded-rect using `oklch(68% 0.18 55)`); `build/copy-assets.ts` root-statics loop extended to pick up `favicon.svg`
+- `netlify.toml` audited: `[[redirects]]` block removed (was rewriting `/main.css` → `/main.css/index.html`); short-TTL cache headers added for sitemap and robots
+- `src/templates/base.html` favicon wired to `/favicon.svg` with `type="image/svg+xml"` replacing inline data-URI placeholder
+- Heading hierarchy fix: `articleCard`/`projectCard` in `build/pages.ts` parameterized with `HeadingLevel`; home page passes `'h3'` (cards under section `h2`), list pages pass `'h2'` (cards under page `h1`); all call sites use explicit arrow functions to avoid `.map(fn)` positional-argument footgun
+- `README.md` (NEW): project description, stack table, scripts, content-authoring guide, architecture tree
+- Reviewer audit run: performance, a11y, progressive-enhancement checks largely PASS; heading-hierarchy blocking fix landed (above); two non-blocking nits remain (cache TTL, muted-color contrast)
 
 ## Next session
-Open Phase 6 per `docs/prompts/06-polish-deploy.md`. Before the first delegation, apply the "Phase execution rules" from `CLAUDE.md`: (1) write the dependency graph for the phase, (2) reconcile remaining `data-reveal` vocabulary drift as the first delegation (only `fade-up` was fixed this session; `fade-in`, `scale-in`, `slide`, `scale` still split), (3) CSS gap fill for the 12 template-referenced classes with no rules (`.article-header`, `.article-meta`, `.article-footer`, `.project-header`, `.project-links`, `.project-footer`, `.page-header`, `.page-header__lead`, `.nav__controls`, `.back-link`, `.reading-time`, `.tech-stack`), (4) browser review of palette + typography via `npm run dev`, (5) deploy prep (`netlify.toml` audit, real articles by Matt).
+Run `npm run dev` and do a browser review of palette, typography, reveal animations, and page layouts across all 7 generated pages. After visual review, Matt replaces Claude-written article markdown with real content. Then deploy via push-to-Netlify. Two optional follow-ups before deploy: (1) add content-hashed filenames to esbuild output (or shorten cache TTL from immutable) to fix stale-asset risk; (2) run a real WCAG contrast-checker pass on `--color-text-muted` in light mode.
 
 ## Open questions
-- Full cross-phase `data-reveal` vocabulary reconciliation: only `fade-up` fixed this session; `fade-in`, `scale-in` (JS vocabulary) vs `slide`, `scale` (Phase 3 native vocabulary) remain split. Templates should only use `fade-up` until Phase 6 completes reconciliation.
-- 12 template-referenced CSS classes with no rules: `.article-header`, `.article-meta`, `.article-footer`, `.project-header`, `.project-links`, `.project-footer`, `.page-header`, `.page-header__lead`, `.nav__controls`, `.back-link`, `.reading-time`, `.tech-stack` — Phase 6 styling pass needed.
-- Palette + typography not yet eyeballed in browser — needs `npm run dev` and real review before treating them as locked in.
-- `netlify.toml` `pretty_urls` + `[[redirects]]` redundancy — deferred to Phase 6.
-- Current articles contain full Claude-written prose; should be replaced by Matt with real content per updated scaffolding rule before deploy.
+- Immutable cache (`Cache-Control: public, max-age=31536000, immutable`) is set on `/*.css` and `/*.js` in `netlify.toml`, but esbuild emits `main.css`/`main.js` without content hashes. Returning visitors will see stale assets for up to a year after a redeploy. Fix: content-hashed filenames (ripples into `base.html` slot) or shorter TTL. Decision deferred to Matt.
+- `--color-text-muted` in light mode (`oklch(45% 0.018 260)` on `oklch(96% 0.012 80)`) is ~4.2:1 — passes AA for large text, near-fails for small body text. Needs a real WCAG contrast-checker pass before deploy.
+- Palette + typography not yet eyeballed in a real browser — `npm run dev` review pending.
+- Article markdown contains Claude-written prose; Matt to replace with real content before deploy.
+- Optional: `<link rel="apple-touch-icon">` not present. Non-blocking; add a 180×180 PNG to root statics if iOS home-screen support is wanted.
 
 ## Blockers
 - (none)

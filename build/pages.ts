@@ -6,7 +6,7 @@ import { renderPage, clearTemplateCache } from "./templates.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const DIST_DIR = join(__dirname, "../dist");
-const SITE_ORIGIN = "https://mattnoth.dev";
+export const SITE_ORIGIN = "https://mattnoth.dev";
 
 async function writeHtml(relPath: string, html: string): Promise<void> {
   const fullPath = join(DIST_DIR, relPath);
@@ -15,12 +15,14 @@ async function writeHtml(relPath: string, html: string): Promise<void> {
   await writeFile(fullPath, html, "utf-8");
 }
 
-function articleCard(item: ParsedContent<ArticleMeta>): string {
+type HeadingLevel = 'h2' | 'h3';
+
+function articleCard(item: ParsedContent<ArticleMeta>, level: HeadingLevel = 'h2'): string {
   const { title, slug, date, description, tags } = item.meta;
   const tagHtml = tags.map((t) => `<span class="tag">${t}</span>`).join("");
   return `<article class="card card--article">
   <header>
-    <h2><a href="/articles/${slug}/">${title}</a></h2>
+    <${level}><a href="/articles/${slug}/">${title}</a></${level}>
     <time datetime="${date}">${date}</time>
     <span class="reading-time">${item.readingTime} min read</span>
   </header>
@@ -29,7 +31,7 @@ function articleCard(item: ParsedContent<ArticleMeta>): string {
 </article>`;
 }
 
-function projectCard(item: ParsedContent<ProjectMeta>): string {
+function projectCard(item: ParsedContent<ProjectMeta>, level: HeadingLevel = 'h2'): string {
   const { title, slug, description, tech, url, github } = item.meta;
   const techHtml = tech.map((t) => `<span class="tech">${t}</span>`).join("");
   const links = [
@@ -39,7 +41,7 @@ function projectCard(item: ParsedContent<ProjectMeta>): string {
     .filter(Boolean)
     .join(" ");
   return `<article class="card card--project">
-  <h2><a href="/projects/${slug}/">${title}</a></h2>
+  <${level}><a href="/projects/${slug}/">${title}</a></${level}>
   <p>${description}</p>
   <div class="tech-stack">${techHtml}</div>
   ${links ? `<div class="links">${links}</div>` : ""}
@@ -79,8 +81,8 @@ export async function generateAllPages(
       title: "Matt Noth — Dev",
       description: "Matt's personal dev site — articles and projects.",
       page_url: `${SITE_ORIGIN}/`,
-      recent_articles: recentArticles.map(articleCard).join("\n"),
-      featured_projects: featuredProjects.map(projectCard).join("\n"),
+      recent_articles: recentArticles.map((a) => articleCard(a, 'h3')).join("\n"),
+      featured_projects: featuredProjects.map((p) => projectCard(p, 'h3')).join("\n"),
     },
     "index.html",
     "home",
@@ -93,7 +95,7 @@ export async function generateAllPages(
       title: "Articles — Matt Noth",
       description: "Writing on software development.",
       page_url: `${SITE_ORIGIN}/articles/`,
-      articles: articles.map(articleCard).join("\n"),
+      articles: articles.map((a) => articleCard(a, 'h2')).join("\n"),
     },
     "articles/index.html",
     "articles list",
@@ -127,7 +129,7 @@ export async function generateAllPages(
       title: "Projects — Matt Noth",
       description: "Things I've built.",
       page_url: `${SITE_ORIGIN}/projects/`,
-      projects: projects.map(projectCard).join("\n"),
+      projects: projects.map((p) => projectCard(p, 'h2')).join("\n"),
     },
     "projects/index.html",
     "projects list",

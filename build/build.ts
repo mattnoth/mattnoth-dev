@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
 import { parseContentDir } from "./markdown.ts";
 import { generateAllPages } from "./pages.ts";
+import { generateSitemap } from "./sitemap.ts";
 import { concatCss, copyAssets, DIST_DIR, SRC_DIR } from "./copy-assets.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -52,6 +53,13 @@ async function stepPages(
   console.log(`[build] pages: ${ms(t)}`);
 }
 
+async function stepSitemap(
+  articles: Awaited<ReturnType<typeof stepParseContent>>["articles"],
+  projects: Awaited<ReturnType<typeof stepParseContent>>["projects"],
+): Promise<void> {
+  await generateSitemap(articles, projects);
+}
+
 async function stepCss(): Promise<void> {
   const t = now();
   await concatCss();
@@ -91,6 +99,7 @@ async function runBuild(): Promise<void> {
 
   const { articles, projects } = await stepParseContent();
   await stepPages(articles, projects);
+  await stepSitemap(articles, projects);
   await stepCss();
   await stepJs(true, true);
   await stepAssets();

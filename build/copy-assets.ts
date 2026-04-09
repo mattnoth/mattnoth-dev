@@ -56,7 +56,7 @@ export async function copyAssets(): Promise<void> {
   }
 
   // Copy root static files if present
-  const rootStatics = ["favicon.ico", "robots.txt"];
+  const rootStatics = ["favicon.ico", "robots.txt", "favicon.svg"];
   for (const file of rootStatics) {
     const srcPath = join(SRC_DIR, file);
     try {

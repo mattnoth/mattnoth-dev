@@ -51,12 +51,17 @@
         animation-range: entry 0% entry 40%;
       }
 
-      [data-reveal="slide"],
+      /* Explicit declaration — default [data-reveal] already uses fade-in, but
+         this selector survives if the default rule's animation-name ever changes. */
+      [data-reveal="fade-in"] {
+        animation-name: fade-in;
+      }
+
       [data-reveal="fade-up"] {
         animation-name: slide-up;
       }
 
-      [data-reveal="scale"] {
+      [data-reveal="scale-in"] {
         animation-name: scale-in;
       }
     }

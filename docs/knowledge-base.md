@@ -22,6 +22,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** `tsconfig.build.json` extends the root `tsconfig.json`. It was tempting to assume `include` would be inherited.
 **Learning:** Each tsconfig's `include` array stands alone — it is not merged or inherited from the base. `tsconfig.build.json` must explicitly set `"include": ["build/**/*"]`. Without this, build scripts would not be typechecked at all.
 
+### `.map(fn)` + new default parameters silently passes `index` into the wrong slot
+**Date:** 2026-04-09
+**Context:** `build/pages.ts` added `level: HeadingLevel = 'h2'` as a new positional parameter to `articleCard` and `projectCard`. Existing `.map(articleCard)` call sites would have silently passed `index: number` as `level`.
+**Learning:** When adding a new positional parameter with a default to a function that is used directly as a `.map()` callback, audit all call sites before shipping. `.map(fn)` passes `(item, index, array)` positionally — the `index` number lands in the new slot without a type error if the parameter type is loose. Fix: convert all call sites to explicit arrow functions (`arr.map((item) => fn(item))`) even when the default applies.
+
 ### `on()` DOM helper requires an internal `EventListener` cast
 **Date:** 2026-04-09
 **Context:** `src/ts/utils/dom.ts` implements a typed `on<K extends keyof HTMLElementEventMap>()` helper. The handler parameter is typed as `(e: HTMLElementEventMap[K]) => void`.
@@ -119,6 +124,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** `utils/dom.ts` `create()` iterates an `attrs` parameter typed as `Partial<HTMLElementTagNameMap[K]>` to set element properties.
 **Learning:** `Object.entries()` on that type returns `[string, unknown][]` — key specificity is gone. One `(el as Record<string, unknown>)` cast is required inside `create()` to assign iterated entries. Safe because only known DOM properties are being assigned; the cast is documented at the site and not repeated at call sites.
 
+### Reviewer fix recommendations must be re-checked against directory ownership
+**Date:** 2026-04-09
+**Context:** Phase 6 reviewer recommended delegating a card heading-hierarchy fix to `content-specialist`. The card HTML is generated in `build/pages.ts` template literals, not in `src/templates/`.
+**Learning:** `reviewer` identifies what to fix, not which specialist owns the fix. Before forwarding a reviewer recommendation verbatim, cross-check the file path against the directory ownership table in `CLAUDE.md`. `build/` belongs to `build-specialist`; `src/templates/` belongs to `content-specialist`. Getting this wrong wastes a delegation round-trip.
+
 ---
 
 ## Content pipeline
@@ -142,4 +152,22 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 
 ## Deploy
 
-_(entries will be added once Phase 6 begins)_
+### Netlify `[[redirects]] from = "/*"` collides with static files
+**Date:** 2026-04-09
+**Context:** `netlify.toml` had a catch-all redirect added in Phase 2 as a "just in case" clean-URL rule.
+**Learning:** The wildcard rewrites every request including `/main.css`, `/main.js`, and `/sitemap.xml` into `/:splat/index.html`, causing 404s for all static assets. With `publish = "dist"` and `pretty_urls = true`, Netlify's default behavior already handles clean URLs via directory-index resolution — no redirect rule is needed. Do not add a `from = "/*"` rule if `pretty_urls` is on.
+
+### `pretty_urls` + directory index is sufficient for clean URLs on Netlify
+**Date:** 2026-04-09
+**Context:** Evaluating whether `[[redirects]]` was needed alongside `pretty_urls = true`.
+**Learning:** Netlify serves `dist/articles/foo/index.html` when a request arrives for `/articles/foo/` out of the box. No redirect rule required. The two mechanisms are redundant and the redirect block wins, causing the bad behavior described above.
+
+### Immutable cache on non-hashed filenames is a latent stale-asset risk
+**Date:** 2026-04-09
+**Context:** `netlify.toml` sets `Cache-Control: public, max-age=31536000, immutable` on `/*.css` and `/*.js`.
+**Learning:** esbuild emits `main.css` and `main.js` without content hashes. Returning visitors will see stale assets for up to a year after a redeploy. Two remedies: add content-hashed filenames to esbuild output (requires updating the `base.html` slot to inject the hashed path) or shorten the cache TTL. Decision is deferred — but this must be resolved before treating the site as production-ready.
+
+### `oklch()` in SVG works in evergreen browsers
+**Date:** 2026-04-09
+**Context:** `src/favicon.svg` uses `oklch(68% 0.18 55)` directly in SVG `fill` attributes.
+**Learning:** Chrome 111+, Safari 15.4+, Firefox 113+ all support `oklch()` in SVG. Safe for this project's evergreen target. If the SVG ever needs to render in a non-browser context (email clients, older rasterizers), swap the fill to `#d07628`.

@@ -140,3 +140,13 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** Phase 5 orchestration gaps (missing CSS class constraint, no slot pre-flight, unreconciled vocabulary drift) were the session's main cost center. The lessons needed to be codified somewhere that is always in main-agent context.
 **Decision:** New "Phase execution rules" section added directly to `CLAUDE.md` instead of a separate file under `docs/`.
 **Consequences:** Rules are in context at every session start via `CLAUDE.md` automatic load. A separate doc would be missed during phase starts unless explicitly read. Adds length to an already long `CLAUDE.md` — acceptable trade-off.
+
+## 2026-04-09 — Removed `slide`/`scale` `data-reveal` aliases rather than keeping them deprecated
+**Context:** Phase 6 vocabulary reconciliation found that `slide` and `scale` appeared only in `src/styles/animations.css` — not in any template, content file, or JS module's `VALID_VARIANTS` set. The Phase 5 decision had aliased `fade-up` onto the native `slide` rule as a partial fix.
+**Decision:** Remove `slide` and `scale` outright. Final canonical vocabulary: `fade-up | fade-in | scale-in`. All three values work on both the native CSS path and the JS fallback path.
+**Consequences:** Any external content that used `data-reveal="slide"` or `data-reveal="scale"` will silently get no animation. Since no templates or content files used them, this is zero-risk today. If the vocabulary is ever extended again, the same audit (CSS + JS `VALID_VARIANTS` + templates + content files) must all agree before shipping.
+
+## 2026-04-09 — Parameterized `HeadingLevel` on card functions instead of flattening home-page sections
+**Context:** Phase 6 reviewer flagged a heading-hierarchy bug: home page emits `h2` section headings and `h2` card headings at the same level — screen readers see a flat list with no nesting. Options were: (a) flatten all section `h2`s to `<p>` labels, or (b) parameterize the card heading level.
+**Decision:** `articleCard` and `projectCard` in `build/pages.ts` accept a `HeadingLevel` parameter. Home page passes `'h3'` (cards nest under section `h2`); list pages pass `'h2'` (cards nest under page `h1`). All `.map()` call sites converted to explicit arrow functions to avoid the positional-argument footgun.
+**Consequences:** Adding a new call site for either card function requires explicitly choosing a heading level — no silent default. Heading semantics are now correct on both home and list pages without touching templates.

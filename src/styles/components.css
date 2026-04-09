@@ -383,4 +383,211 @@
       transform: none;
     }
   }
+
+  /* ── Page header (list pages: /articles/, /projects/) ────────────── */
+  .page-header {
+    padding-block: var(--space-2xl) var(--space-xl);
+    border-block-end: 0.0625rem solid var(--color-border);
+    margin-block-end: var(--space-2xl);
+
+    & h1 {
+      margin-block-end: var(--space-sm);
+    }
+  }
+
+  .page-header__lead {
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+    max-inline-size: 55ch;
+    margin: 0;
+  }
+
+  /* ── Article header (article detail page) ────────────────────────── */
+  /* Lives in layout — it's the top region of a one-off page, not a reusable widget */
+  .article-header {
+    padding-block-end: var(--space-xl);
+    border-block-end: 0.0625rem solid var(--color-border);
+    margin-block-end: var(--space-xl);
+
+    & h1 {
+      margin-block-end: var(--space-md);
+    }
+
+    & .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-block-start: var(--space-sm);
+    }
+  }
+
+  /* ── Article meta row (date + reading time) ──────────────────────── */
+  .article-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+
+    & time {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  /* ── Reading time atom ───────────────────────────────────────────── */
+  .reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+
+    /* Separator dot before reading-time when it follows a sibling */
+    &::before {
+      content: "·";
+      display: inline-block;
+    }
+  }
+
+  /* ── Article footer ──────────────────────────────────────────────── */
+  .article-footer {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 0.0625rem solid var(--color-border);
+  }
+
+  /* ── Project header ──────────────────────────────────────────────── */
+  .project-header {
+    padding-block-end: var(--space-xl);
+    border-block-end: 0.0625rem solid var(--color-border);
+    margin-block-end: var(--space-xl);
+
+    & h1 {
+      margin-block-end: var(--space-md);
+    }
+  }
+
+  /* ── Tech stack — row of tag pills ──────────────────────────────── */
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-end: var(--space-md);
+  }
+
+  /* ── Project links — live / github row ──────────────────────────── */
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+
+    & a {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2xs);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-accent);
+      text-decoration: none;
+      padding-block: var(--space-2xs);
+      padding-inline: var(--space-sm);
+      border: 0.0625rem solid color-mix(in oklch, var(--color-accent) 35%, transparent);
+      border-radius: var(--radius-md);
+      transition:
+        background-color var(--duration-fast) ease,
+        border-color var(--duration-fast) ease;
+
+      &:hover {
+        background-color: color-mix(in oklch, var(--color-accent) 10%, transparent);
+        border-color: var(--color-accent);
+      }
+
+      &:focus-visible {
+        outline: 0.125rem solid var(--color-accent);
+        outline-offset: 0.125rem;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-links a {
+      transition: none;
+    }
+  }
+
+  /* ── Project footer ──────────────────────────────────────────────── */
+  .project-footer {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 0.0625rem solid var(--color-border);
+  }
+
+  /* ── Back link ───────────────────────────────────────────────────── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+
+    &:hover {
+      color: var(--color-accent);
+    }
+
+    &:focus-visible {
+      outline: 0.125rem solid var(--color-accent);
+      outline-offset: 0.125rem;
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-link {
+      transition: none;
+    }
+  }
+
+  /* ── Nav controls (theme toggle + hamburger cluster) ─────────────── */
+  .nav__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+
+    & button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      inline-size: 2.5rem;
+      block-size: 2.5rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      background-color: transparent;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition:
+        background-color var(--duration-fast) ease,
+        color var(--duration-fast) ease;
+
+      &:hover {
+        background-color: var(--color-surface);
+        color: var(--color-text);
+      }
+
+      &:focus-visible {
+        outline: 0.125rem solid var(--color-accent);
+        outline-offset: 0.125rem;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav__controls button {
+      transition: none;
+    }
+  }
 }

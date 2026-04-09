@@ -5,20 +5,27 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Pretty URLs — serve index.html for clean paths
+# Pretty URLs — serve /articles/slug/ as /articles/slug/index.html automatically.
+# The [[redirects]] block that previously attempted the same thing has been removed:
+# it matched "/*" and rewrote /main.css → /main.css/index.html, conflicting with
+# static asset delivery. Netlify's built-in directory index + pretty_urls handles
+# clean URLs correctly without a wildcard redirect.
 [build.processing]
   skip_processing = false
 
-[[redirects]]
-  from = "/*"
-  to = "/:splat/index.html"
-  status = 200
-  conditions = {Language = [], Country = [], Role = []}
-  force = false
-
-# Trailing slash canonical redirect (Netlify built-in)
 [build.processing.html]
   pretty_urls = true
+
+# Cache: crawl/index files — short TTL so re-deploys propagate quickly
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
 
 # Cache: fonts and images — 1 year immutable
 [[headers]]
