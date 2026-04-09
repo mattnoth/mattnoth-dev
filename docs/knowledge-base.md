@@ -36,6 +36,21 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** Phase 1 creates all config, directory structure, and placeholder files. The build entry point `build/build.ts` is currently just a comment stub.
 **Learning:** Do not attempt `npm run build` or `npm run dev` until Phase 2 ships the real pipeline. `npm run typecheck` (`tsc --noEmit`) is the correct smoke test for Phase 1 — it works because it only validates types, not the build graph.
 
+### IDE false positives on `node:` imports in `build/`
+**Date:** 2026-04-09
+**Context:** VSCode resolves `build/*.ts` against the nearest `tsconfig.json`, which targets the browser and lacks `@types/node`.
+**Learning:** The editor will show spurious errors on `import "node:fs/promises"` and similar. `npm run typecheck` is authoritative — it runs both tsconfigs explicitly. If the editor noise becomes intolerable, add TS project references (`composite: true` + `references` in root tsconfig) to tell VSCode which config applies to which tree.
+
+### `allowImportingTsExtensions: true` required in `tsconfig.build.json`
+**Date:** 2026-04-09
+**Context:** `tsx` resolves `.ts` import paths at runtime, so build scripts use `import { foo } from "./markdown.ts"`. `tsc` rejects `.ts` extensions in import specifiers without this flag.
+**Learning:** Add `allowImportingTsExtensions: true` to `tsconfig.build.json`. The browser tsconfig does not need it because esbuild handles resolution there.
+
+### `esbuild.ServeResult.hosts` is `string[]` as of esbuild 0.25+
+**Date:** 2026-04-09
+**Context:** `build/build.ts` reads the dev server host from the esbuild serve result.
+**Learning:** `hosts` is an array, not a scalar `host` field. With `noUncheckedIndexedAccess: true` on, the correct pattern is `hosts[0] ?? "localhost"`. Using `host` directly (old API) will error at type-check time.
+
 ---
 
 ## CSS

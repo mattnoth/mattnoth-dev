@@ -50,3 +50,23 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** The original outline doesn't include syntax highlighting for code blocks in articles. Shiki would do this at build time (zero client JS) with ~10 lines of code in `build/markdown.ts`.
 **Decision:** Leave it out of Phases 1-6. Add it as the first post-launch enhancement once the rest of the site is live.
 **Consequences:** Code blocks in early articles render as flat monospace text — readable but visually plain. Easy to add later without touching any other code. No rush.
+
+## 2026-04-09 — Production sourcemaps always on
+**Context:** Phase 2 prompt listed sourcemap as a core esbuild option alongside minify, but the `--dev` flag bullet read as dev-only enablement. Ambiguous spec.
+**Decision:** Sourcemaps on in both dev and prod (`build/build.ts` calls `stepJs` with sourcemap=true unconditionally).
+**Consequences:** This is a personal site with a public GitHub repo — the "information disclosure" tradeoff is zero. Prod debugging gets real file/line numbers instead of `main.js:1:N`. Adds a few KB to each Netlify deploy. Do not reconsider unless the codebase becomes proprietary.
+
+## 2026-04-09 — Stub detection in templates and CSS concat for phase-gated builds
+**Context:** Phase 1 left comment-only HTML templates and `/* */`-only CSS partials as placeholders. Running the Phase 2 build against them would either crash or emit empty pages.
+**Decision:** `build/templates.ts` treats any template whose content is an HTML comment with no `{{slot}}` markers as not-yet-implemented and skips page generation. `concatCss` skips CSS files whose trimmed content starts with `/*`.
+**Consequences:** The build pipeline runs green against Phase 1 empty shells. Phases 3 and 5 will be picked up automatically once real content replaces the stubs — no build changes needed. Watch for accidentally skipping a file that should be included but looks like a stub.
+
+## 2026-04-09 — Dual watcher strategy for dev server (esbuild + node:fs.watch)
+**Context:** esbuild's `ctx.serve()` + `ctx.watch()` handles JS/CSS bundling incrementally, but markdown and HTML template changes require a full pages rebuild that esbuild cannot express natively.
+**Decision:** Two watchers in `build/build.ts`: esbuild's for JS/CSS, and `node:fs.watch` scoped by file extension for markdown/HTML/CSS triggers that call the relevant build step directly.
+**Consequences:** Scoped rebuilds without over-rebuilding (CSS change → CSS step only, `.md` change → pages step only). The two watchers are independent — if esbuild's watcher fires a CSS rebuild at the same time as the `fs.watch` CSS trigger, both may run concurrently. Acceptable for a personal site with no concurrent editors.
+
+## 2026-04-09 — Main agent made one-line sourcemap edit directly (bypassing build-specialist)
+**Context:** After `reviewer` flagged the sourcemap issue, `SendMessage` to the warm build-specialist was not available in this harness. Spawning a fresh subagent to flip one boolean would cold-start a full context load.
+**Decision:** Main agent edited `build/build.ts:95` directly after explicit user approval.
+**Consequences:** One-off exception. Does not change the directory ownership rule going forward. Any future edits to `build/` must go through `build-specialist`.

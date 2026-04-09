@@ -6,7 +6,8 @@
     "moduleResolution": "NodeNext",
     "lib": ["ES2024"],
     "types": ["node"],
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["build/**/*"]
 }
