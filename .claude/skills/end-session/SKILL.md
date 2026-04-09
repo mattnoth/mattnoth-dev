@@ -16,15 +16,13 @@ I want to end this work session cleanly. Do this in order:
    - **Blockers:** anything stopping progress
    - **Next step:** the concrete next action — not "continue building" but e.g. "implement `build/templates.ts` per prompt section 2"
 
-2. **Show me the handoff package** so I can review before it gets committed to docs.
+2. **Print the handoff package** so it's visible in the session log, then **immediately delegate** to the `progress-tracker` subagent with the full handoff package in the same turn. Do NOT pause to ask for confirmation — the handoff print and the delegation happen back-to-back without user input. The progress-tracker will update `docs/progress.md`, append to `docs/knowledge-base.md`, and append to `docs/decisions.md` as appropriate.
 
-3. **Once I confirm** (or if I say "go ahead"), delegate to the `progress-tracker` subagent with the full handoff package. It will update `docs/progress.md`, append to `docs/knowledge-base.md`, and append to `docs/decisions.md` as appropriate.
+3. **Do not update the docs yourself** — the progress-tracker owns that file format. Your job is to produce a clean handoff and delegate.
 
-4. **Do not update the docs yourself** — the progress-tracker owns that file format. Your job is to produce a clean handoff and delegate.
-
-5. **After the progress-tracker reports back**, print a final line:
+4. **After the progress-tracker reports back**, print a final line:
    ```
    Session ended. Resume with /start-session in your next Claude Code session.
    ```
 
-6. **Do not run builds, tests, or new work after this point.** If the build is broken, say so in "Blockers" — don't try to fix it in the closing session.
+5. **Do not run builds, tests, or new work after this point.** If the build is broken, say so in "Blockers" — don't try to fix it in the closing session.
