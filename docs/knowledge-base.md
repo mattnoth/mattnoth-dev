@@ -89,7 +89,30 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 
 ## TypeScript modules
 
-_(entries will be added once Phase 4 begins)_
+### Browser tsconfig does not set `allowImportingTsExtensions`
+**Date:** 2026-04-09
+**Context:** `tsconfig.build.json` sets `allowImportingTsExtensions: true` so `tsx` can resolve `.ts` specifiers in build scripts. It was tempting to mirror this pattern in `src/ts/`.
+**Learning:** Browser-side imports in `src/ts/` must be extensionless. esbuild's bundler resolution handles them. First pass of Phase 4 used `.ts` suffixes copied from the build-side pattern and `tsc --noEmit` rejected every import. Only `tsconfig.build.json` carries this flag.
+
+### Cross-phase CSS/TS vocabulary drift
+**Date:** 2026-04-09
+**Context:** Phase 3 defined `.nav--hidden` and `data-reveal` values (`""`, `"slide"`, `"scale"`) for the native scroll-driven CSS path. Phase 4 spec assigned a separate vocabulary: `.reveal-fade-up`, `.reveal-fade-in`, `.reveal-scale-in`, `.revealed`, `.no-transition`, `.carousel-*`. None of these classes were defined in CSS.
+**Learning:** Two class vocabularies now coexist for reveal behavior. Phase 5+ prompts must cross-reference the other phase's delivered class names before assigning new vocabulary. Classes used by JS modules that are not in CSS must either be added to CSS or injected at mount time (the current workaround).
+
+### `noUncheckedIndexedAccess` + closure narrowing requires re-annotation
+**Date:** 2026-04-09
+**Context:** `carousel.ts` does a null guard on `qs('.carousel-track', el)`, then uses the result inside nested closures (event handlers, rAF callbacks).
+**Learning:** TypeScript control-flow narrowing does not propagate across closure boundaries. Pattern to use after the null guard: `const track: HTMLElement = narrowedVar` — re-annotate the local to the non-null type so nested closures see it without a type assertion at each call site.
+
+### `on()` helper is scoped to `HTMLElementEventMap` — raw `addEventListener` required for other targets
+**Date:** 2026-04-09
+**Context:** `main.ts` listens on `document` (DOMContentLoaded), `theme-toggle.ts` listens on a `MediaQueryList` (change), and `carousel.ts` listens on `AbortSignal` (abort). All three are not `HTMLElement` targets.
+**Learning:** `MediaQueryList` uses `MediaQueryListEventMap`, `document` uses `DocumentEventMap`, and `AbortSignal` uses its own map. The typed `on()` helper is intentionally scoped to `HTMLElementEventMap`. Use raw `addEventListener` for non-HTMLElement targets and add a comment explaining why. The reviewer explicitly cleared these three cases as correct.
+
+### `Object.entries` on `Partial<HTMLElementTagNameMap[K]>` loses key specificity
+**Date:** 2026-04-09
+**Context:** `utils/dom.ts` `create()` iterates an `attrs` parameter typed as `Partial<HTMLElementTagNameMap[K]>` to set element properties.
+**Learning:** `Object.entries()` on that type returns `[string, unknown][]` — key specificity is gone. One `(el as Record<string, unknown>)` cast is required inside `create()` to assign iterated entries. Safe because only known DOM properties are being assigned; the cast is documented at the site and not repeated at call sites.
 
 ---
 

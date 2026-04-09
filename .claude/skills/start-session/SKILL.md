@@ -3,7 +3,7 @@ name: start-session
 description: Start a matt-site work session. Reads CLAUDE.md, docs/progress.md, and the current phase prompt; reports phase status and the concrete next step. Use at the beginning of any session in /Users/mnoth/source/mattnoth-dev/.
 ---
 
-A new work session is starting. Do this in order, then stop and wait for my next instruction:
+A new work session is starting. Do this in order:
 
 1. **Read `CLAUDE.md`** at the project root so you have the full rule set in context.
 2. **Read `docs/progress.md`** to see the current phase status, last session summary, and next-session plan.
@@ -31,4 +31,4 @@ A new work session is starting. Do this in order, then stop and wait for my next
 [which specialist subagent should handle the next step, based on CLAUDE.md's directory ownership table]
 ```
 
-6. **Do not start writing code yet.** Wait for me to confirm the plan or give a different instruction.
+6. **Immediately proceed to the next step.** Do not pause to ask for confirmation — delegate to the recommended specialist subagent right after reporting. If the next step is genuinely ambiguous or blocked, flag it in the report instead and then stop.

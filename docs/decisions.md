@@ -95,3 +95,23 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** The project's CSS rules prohibit `!important`. The `prefers-reduced-motion: reduce` override block needs to defeat any inline or JS-set animation values that may have already been applied.
 **Decision:** Allow a single `!important` exception inside `@media (prefers-reduced-motion: reduce)` in `src/styles/animations.css`. This is the established a11y pattern for motion overrides.
 **Consequences:** Creates a documented exception to the no-`!important` rule. Future CSS authors must not use this as a precedent for general-purpose `!important` usage — it applies only to accessibility motion overrides.
+
+## 2026-04-09 — Module registry pattern: `as const satisfies Record<string, () => Promise<{ mount: ... }>>`
+**Context:** `src/ts/main.ts` needs a map of module name → dynamic import factory so `[data-module]` attribute values resolve to the right import at runtime.
+**Decision:** Use `as const satisfies Record<string, () => Promise<{ mount: (el: HTMLElement) => void }>>` for the registry object literal.
+**Consequences:** `as const` preserves literal key types so TypeScript can verify that a given `data-module` value is a known key. `satisfies` validates the shape without widening to the broader type. Adding a new module requires one line in the registry; the rest of `main.ts` stays unchanged.
+
+## 2026-04-09 — JS-side `<style>` injection in `carousel.ts` and `scroll-reveal.ts` (temporary)
+**Context:** Phase 4 required `.carousel-*`, `.reveal-fade-up`, `.reveal-fade-in`, `.reveal-scale-in`, `.revealed`, and `.no-transition` classes. Phase 3 CSS did not define them. Blocking Phase 4 on a CSS pass would merge phases.
+**Decision:** `carousel.ts` and `scroll-reveal.ts` inject a `<style>` element at mount time containing the minimum required CSS. This is an explicit temporary workaround.
+**Consequences:** Style definitions are split between CSS partials and JS strings. Must be resolved before or during Phase 5: `css-specialist` adds the missing partials, JS modules remove the injection. If not cleaned up, future CSS changes to those classes must be made in two places.
+
+## 2026-04-09 — `scroll-reveal` early-exit when native scroll-driven animations are supported
+**Context:** Phase 3 defined a native CSS scroll-driven reveal path behind `@supports (animation-timeline: view())`. Phase 4's JS fallback would redundantly add reveal classes on modern browsers that already handle it via CSS.
+**Decision:** `scroll-reveal.ts` calls `CSS.supports('animation-timeline', 'view()')` at mount time and returns immediately if true — the native CSS path wins.
+**Consequences:** On modern browsers (Chrome 115+, Safari 18+), `scroll-reveal.ts` is a no-op module. The JS path only runs on browsers that lack native support. This means the JS fallback code is exercised only in testing on older browsers — it must be verified there separately.
+
+## 2026-04-09 — Theme-toggle transition flash suppression via inline style + rAF, not a class
+**Context:** `theme-toggle.ts` needs to suppress transition animation during theme switches. The `.no-transition` class was planned but not yet in CSS.
+**Decision:** `theme-toggle.ts` sets `html.style.setProperty('transition', 'none')` directly and removes it inside a `requestAnimationFrame` callback, bypassing the missing CSS class.
+**Consequences:** Works without CSS cooperation. If `.no-transition` is later added to CSS, this inline style approach should be replaced with the class toggle for consistency with the rest of the codebase.
