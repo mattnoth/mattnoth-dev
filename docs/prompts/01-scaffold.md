@@ -9,33 +9,39 @@
 Create the full directory structure at the project root (`/Users/mnoth/source/mattnoth-dev/`).
 
 ### 1. package.json
-- Name: matt-site
+- Name: matthew-noth-dev-site
 - Type: "module"
+- Engines: `"node": ">=22"` (Node 22 LTS minimum — build scripts use modern APIs)
 - Scripts:
   - "dev": runs the dev server (esbuild serve + watch + build)
   - "build": full production build (type check + build)
   - "typecheck": "tsc --noEmit"
   - "clean": removes dist/
-- Dev dependencies: typescript, esbuild, gray-matter, marked, @types/node, tsx
+- Dev dependencies: typescript (5.8+), esbuild, gray-matter, marked, @types/node (^22), tsx
 - No runtime dependencies
 
 ### 2. tsconfig.json (browser code)
-- Target: ES2022
-- Module: ES2022
+- Target: ES2024
+- Module: ESNext
 - ModuleResolution: bundler
+- Lib: `["ES2024", "DOM", "DOM.Iterable"]` — ES2024 gives us `Object.groupBy`, `Map.groupBy`, new `Set` methods (`union`, `intersection`, `difference`), and `Promise.withResolvers`
 - Strict: true
 - verbatimModuleSyntax: true
 - erasableSyntaxOnly: true
+- noUncheckedIndexedAccess: true (bonus strictness — flags unsafe array/object index access)
 - noEmit: true (type checking only — esbuild handles emit)
 - Include: ["src/**/*"]
-- DOM and DOM.Iterable libs
 
 ### 3. tsconfig.build.json (build scripts — Node target)
 - Extends tsconfig.json
-- Override target: ES2022
-- Override module: Node16
-- Override moduleResolution: Node16
+- Override target: ES2024
+- Override module: NodeNext
+- Override moduleResolution: NodeNext
+- Override lib: `["ES2024"]` (no DOM — build scripts are Node-only)
+- Types: `["node"]`
 - Include: ["build/**/*"]
+
+**Rationale for latest targets:** Build scripts run on your own machine under Node 22+ where all ES2024 features are native. Browser code runs in evergreen Chrome/Safari/Firefox where ES2024 is also fully supported. No downleveling needed for either environment. The "conservative" ethos of this project is about avoiding framework/runtime bloat (no React, no Sass, no CSS-in-JS), *not* about avoiding modern language features.
 
 ### 4. netlify.toml
 - Build command: npm run build

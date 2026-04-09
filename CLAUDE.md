@@ -27,14 +27,19 @@ A personal dev website for publishing tech articles and project showcases, built
 
 ## Modern TypeScript rules
 
-- Target ES2022 for browser, Node16 for build scripts.
+- **Target ES2024 for both browser and build scripts.** Browser code runs in evergreen Chrome/Safari/Firefox; build scripts run under Node 22+ (LTS) on your machine. No downleveling needed for either.
+- `module: ESNext` + `moduleResolution: bundler` for browser code (esbuild is the bundler).
+- `module: NodeNext` + `moduleResolution: NodeNext` for build scripts.
 - Use `satisfies` to validate config without widening.
 - Use `import type` / `export type` everywhere for type-only imports (`verbatimModuleSyntax: true` is on).
 - `erasableSyntaxOnly: true` — no enums, namespaces, parameter properties. Use `as const` objects instead.
-- Use `Object.groupBy()`, `Map.groupBy()`, new `Set` methods (`union`, `intersection`, `difference`) where they fit.
+- `noUncheckedIndexedAccess: true` — flags unsafe array/object index access.
+- Use `Object.groupBy()`, `Map.groupBy()`, new `Set` methods (`union`, `intersection`, `difference`), `Promise.withResolvers()` where they fit.
 - Template literal types for route paths / CSS class names where it adds safety.
 - `<const T>(value: T)` for narrower inference.
 - Never use `any`. Use `unknown` + narrowing when truly dynamic.
+
+**Philosophy clarification:** the "keep it minimal" rule of this project targets **runtime dependencies and frameworks** (no React, no Sass, no CSS-in-JS, no Tailwind). It does NOT mean "avoid modern language features". Use the latest TypeScript and latest ES* APIs freely — they're zero-cost at runtime.
 
 ## Modern CSS rules
 
@@ -75,16 +80,18 @@ The `reviewer` subagent is read-only — it runs builds, checks output, reports 
 ## Session workflow
 
 **Starting a session:**
-1. Run `/start-session`. This reads `docs/progress.md` + this file and reports current phase status + next steps.
+1. Run `/start-session` (defined at `.claude/skills/start-session/SKILL.md`). This reads `docs/progress.md` + this file and reports current phase status + next steps.
 2. If starting a new phase, read `docs/prompts/0X-*.md` for that phase.
 3. Delegate implementation work to the appropriate specialist subagent.
 
 **Ending a session:**
-1. Run `/end-session` (or say "prepare to end session").
+1. Run `/end-session` (defined at `.claude/skills/end-session/SKILL.md`) or say "prepare to end session".
 2. The `progress-tracker` subagent updates `docs/progress.md`, appends to `docs/knowledge-base.md` and `docs/decisions.md` as needed.
 3. Never hand-edit `docs/progress.md` during a session — let the tracker own that file's format.
 
 **Between sessions:** everything important lives in `docs/`. Memory pointers in `~/.claude/projects/-Users-mnoth-source-mattnoth-dev/memory/` remind future sessions to read these files.
+
+**Note on skills vs commands:** `/start-session` and `/end-session` live in `.claude/skills/<name>/SKILL.md` (not `.claude/commands/`). The skills layout has live change detection — edits are picked up mid-session without restarting.
 
 ---
 

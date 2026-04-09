@@ -1,5 +1,6 @@
 ---
-description: Start a matt-site work session — read progress, report phase status, suggest next step
+name: start-session
+description: Start a matt-site work session. Reads CLAUDE.md, docs/progress.md, and the current phase prompt; reports phase status and the concrete next step. Use at the beginning of any session in /Users/mnoth/source/mattnoth-dev/.
 ---
 
 A new work session is starting. Do this in order, then stop and wait for my next instruction:

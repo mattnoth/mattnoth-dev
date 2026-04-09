@@ -17,13 +17,24 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 
 ## Gotchas
 
-_(none yet — entries will be added as they come up)_
+### tsconfig `extends` does not inherit `include`
+**Date:** 2026-04-09
+**Context:** `tsconfig.build.json` extends the root `tsconfig.json`. It was tempting to assume `include` would be inherited.
+**Learning:** Each tsconfig's `include` array stands alone — it is not merged or inherited from the base. `tsconfig.build.json` must explicitly set `"include": ["build/**/*"]`. Without this, build scripts would not be typechecked at all.
+
+### `on()` DOM helper requires an internal `EventListener` cast
+**Date:** 2026-04-09
+**Context:** `src/ts/utils/dom.ts` implements a typed `on<K extends keyof HTMLElementEventMap>()` helper. The handler parameter is typed as `(e: HTMLElementEventMap[K]) => void`.
+**Learning:** `HTMLElementEventMap[K]` is not directly assignable to `EventListener`. One `handler as EventListener` cast is required inside the function body when calling `addEventListener`. Call sites remain fully typed; the cast is entirely internal.
 
 ---
 
 ## Build system
 
-_(entries will be added once Phase 2 begins)_
+### Phase 1 scaffold does not produce a working build
+**Date:** 2026-04-09
+**Context:** Phase 1 creates all config, directory structure, and placeholder files. The build entry point `build/build.ts` is currently just a comment stub.
+**Learning:** Do not attempt `npm run build` or `npm run dev` until Phase 2 ships the real pipeline. `npm run typecheck` (`tsc --noEmit`) is the correct smoke test for Phase 1 — it works because it only validates types, not the build graph.
 
 ---
 

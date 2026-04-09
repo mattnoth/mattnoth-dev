@@ -1,5 +1,6 @@
 ---
-description: End a matt-site work session — capture progress, decisions, and learnings into docs/
+name: end-session
+description: End a matt-site work session cleanly. Produces a structured handoff summary, then delegates to the progress-tracker subagent to update docs/progress.md, docs/knowledge-base.md, and docs/decisions.md. Use at the end of any session, or when the user says "prepare to end session".
 ---
 
 I want to end this work session cleanly. Do this in order:
