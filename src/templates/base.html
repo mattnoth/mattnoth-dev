@@ -1,1 +1,90 @@
-<!-- Root HTML shell: <head> metadata, <nav>, <footer>, and a {{content}} slot. All pages extend this. -->
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{description}}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{page_url}}">
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{title}}">
+    <meta name="twitter:description" content="{{description}}">
+
+    <link rel="stylesheet" href="/main.css">
+
+    <!-- Favicon: amber M mark, matches accent color -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26' font-family='serif'>M</text></svg>">
+
+    <script type="module" src="/main.js"></script>
+  </head>
+  <body>
+    <a href="#content" id="skip-link">Skip to content</a>
+
+    <header class="site-header nav" data-module="nav">
+      <div class="container">
+        <a href="/" class="nav__logo">Matt<span>.</span></a>
+
+        <!-- Hidden checkbox — CSS-only mobile menu toggle -->
+        <input type="checkbox" id="nav-toggle" aria-hidden="true">
+
+        <nav aria-label="Site navigation">
+          <ul class="nav__links">
+            <li><a href="/articles/">Articles</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav__controls">
+          <button
+            type="button"
+            data-module="theme-toggle"
+            aria-label="Switch to dark mode"
+          >
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+
+          <label class="nav__toggle-label" for="nav-toggle" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <main id="content" data-module="scroll-reveal">
+      {{content}}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>&copy; 2026 Matt Noth &middot; Built with vanilla TS + CSS</p>
+        <nav aria-label="Social links">
+          <ul class="nav__links">
+            <li><a href="https://github.com/mattnoth" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+            <li><a href="https://linkedin.com/in/mattnoth" rel="noopener noreferrer" target="_blank">LinkedIn</a></li>
+            <li><a href="https://twitter.com/mattnoth" rel="noopener noreferrer" target="_blank">X</a></li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

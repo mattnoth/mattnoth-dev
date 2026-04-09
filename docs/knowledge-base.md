@@ -99,6 +99,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** Phase 3 defined `.nav--hidden` and `data-reveal` values (`""`, `"slide"`, `"scale"`) for the native scroll-driven CSS path. Phase 4 spec assigned a separate vocabulary: `.reveal-fade-up`, `.reveal-fade-in`, `.reveal-scale-in`, `.revealed`, `.no-transition`, `.carousel-*`. None of these classes were defined in CSS.
 **Learning:** Two class vocabularies now coexist for reveal behavior. Phase 5+ prompts must cross-reference the other phase's delivered class names before assigning new vocabulary. Classes used by JS modules that are not in CSS must either be added to CSS or injected at mount time (the current workaround).
 
+### `data-reveal` vocabulary only partially reconciled after Phase 5
+**Date:** 2026-04-09
+**Context:** Phase 5 fixed `fade-up` by aliasing it to the native `slide` rule in `src/styles/animations.css`. The other values remain split: `fade-in` and `scale-in` exist only in the JS fallback path; `slide` and `scale` exist only in the native CSS path.
+**Learning:** Templates should only use `data-reveal="fade-up"` until Phase 6 completes full reconciliation. Using `fade-in`, `scale-in`, `slide`, or `scale` in new templates will silently fail on one of the two render paths.
+
 ### `noUncheckedIndexedAccess` + closure narrowing requires re-annotation
 **Date:** 2026-04-09
 **Context:** `carousel.ts` does a null guard on `qs('.carousel-track', el)`, then uses the result inside nested closures (event handlers, rAF callbacks).
@@ -118,7 +123,20 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 
 ## Content pipeline
 
-_(entries will be added once Phase 5 begins)_
+### `templates.ts` slot regex silently swallows unknown slots
+**Date:** 2026-04-09
+**Context:** `build/pages.ts` carried a dead `meta` slot for several Phase 4 builds. It passed through `templates.ts` without any error or warning — the renderer simply emits nothing for an unknown slot.
+**Learning:** There is no build-time error when a slot appears in the producer (`pages.ts`) but not in the template, or vice versa. Slot mismatches require out-of-band auditing — read both sides of the slot contract before delegating template work. The new "slot-contract pre-flight" rule in `CLAUDE.md` codifies this.
+
+### Reusing one slot for two rendered forms causes brittle coupling
+**Date:** 2026-04-09
+**Context:** `build/pages.ts` originally used `title` for both the `<title>` element (suffixed: "Article — Matt Noth") and the `<h1>` content. This broke when templates rendered the suffixed title verbatim as a heading.
+**Learning:** If a slot needs two different rendered forms (suffixed for `<title>` and raw for `<h1>`), split it into two separate slots up front. Stripping or appending at the template side creates invisible coupling that breaks silently when templates are written by a different agent.
+
+### Phase-prompt rule overrides CLAUDE.md site-wide rules
+**Date:** 2026-04-09
+**Context:** `CLAUDE.md` says "no lorem ipsum" but the intent was only for deploy-ready content. `docs/prompts/05-content.md` said "write as Matt, 400-500 words, authentic voice" — which overrode the rule and caused `content-specialist` to write ~1800 words of real prose.
+**Learning:** When a CLAUDE.md rule can be contradicted by a phase prompt, both must be updated simultaneously. Rule-level clarification alone does not protect against the leak path through the phase prompt. This is the operating assumption for future rule corrections.
 
 ---
 

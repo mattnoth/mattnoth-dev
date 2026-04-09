@@ -6,6 +6,7 @@ import { renderPage, clearTemplateCache } from "./templates.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const DIST_DIR = join(__dirname, "../dist");
+const SITE_ORIGIN = "https://mattnoth.dev";
 
 async function writeHtml(relPath: string, html: string): Promise<void> {
   const fullPath = join(DIST_DIR, relPath);
@@ -77,6 +78,7 @@ export async function generateAllPages(
     {
       title: "Matt Noth — Dev",
       description: "Matt's personal dev site — articles and projects.",
+      page_url: `${SITE_ORIGIN}/`,
       recent_articles: recentArticles.map(articleCard).join("\n"),
       featured_projects: featuredProjects.map(projectCard).join("\n"),
     },
@@ -90,6 +92,7 @@ export async function generateAllPages(
     {
       title: "Articles — Matt Noth",
       description: "Writing on software development.",
+      page_url: `${SITE_ORIGIN}/articles/`,
       articles: articles.map(articleCard).join("\n"),
     },
     "articles/index.html",
@@ -104,12 +107,13 @@ export async function generateAllPages(
       "article.html",
       {
         title: `${title} — Matt Noth`,
+        page_title: title,
         description,
+        page_url: `${SITE_ORIGIN}/articles/${slug}/`,
         date,
         tags: tagHtml,
         reading_time: String(item.readingTime),
         content: item.html,
-        meta: `<meta name="description" content="${description}">`,
       },
       `articles/${slug}/index.html`,
       `article: ${slug}`,
@@ -122,6 +126,7 @@ export async function generateAllPages(
     {
       title: "Projects — Matt Noth",
       description: "Things I've built.",
+      page_url: `${SITE_ORIGIN}/projects/`,
       projects: projects.map(projectCard).join("\n"),
     },
     "projects/index.html",
@@ -142,11 +147,12 @@ export async function generateAllPages(
       "project.html",
       {
         title: `${title} — Matt Noth`,
+        page_title: title,
         description,
+        page_url: `${SITE_ORIGIN}/projects/${slug}/`,
         tech: techHtml,
         content: item.html,
         links,
-        meta: `<meta name="description" content="${description}">`,
       },
       `projects/${slug}/index.html`,
       `project: ${slug}`,

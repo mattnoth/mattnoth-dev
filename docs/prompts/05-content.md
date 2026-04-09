@@ -52,48 +52,36 @@
 - <h1>Projects</h1>
 - {{projects}} slot containing project cards in a grid
 
-### Sample Content — write as Matt, first person, authentic voice
+### Sample content — scaffolding only
 
-#### src/content/articles/building-this-site.md
-Frontmatter:
-```
+Create the four markdown files with **real frontmatter** (title, date, tags, description, slug) and **lorem ipsum body text** — ~50 words max per file. Each body should contain clearly labeled section markers in square brackets so it's obvious what Matt will write there later. **Do not write real prose in Matt's voice.** Matt writes the real articles after Phase 6.
+
+Example shape:
+
+````markdown
 ---
 title: "Building This Site with Vanilla TS and Modern CSS"
+slug: "building-this-site"
 date: "2026-04-07"
 tags: ["typescript", "css", "static-site"]
 description: "Why I ditched React and built my personal site with zero framework runtime."
 ---
-```
-- 400-500 words
-- Talk about coming from Next.js, wanting more control and speed
-- Mention the modern CSS features that eliminate the need for Sass
-- Include a small code example (TypeScript module pattern or CSS nesting)
-- Authentic voice — this is a real engineer writing about real decisions
 
-#### src/content/articles/modern-css-is-amazing.md
-Frontmatter with tags: ["css", "web-development", "frontend"]
-- 300-400 words
-- Cover native nesting, :has(), container queries, scroll-driven animations
-- Include CSS code examples
-- Enthusiasm for the spec evolution
+[intro paragraph — why I ditched Next.js] Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
-#### src/content/projects/context-base.md
-Frontmatter:
-```
----
-title: "Context Base"
-description: "A structured markdown knowledge repository for grounding AI agents in domain expertise."
-tech: ["typescript", "markdown", "ai", "knowledge-engineering"]
-featured: true
-github: "https://github.com/mattmccarthy"
----
-```
-- 200-300 words describing the project concept
-- What problem it solves, how it works at a high level
+[code example section — TS module pattern or CSS nesting] Lorem ipsum.
 
-#### src/content/projects/mcp-snowflake.md
-Frontmatter with tech: ["typescript", "snowflake", "mcp", "ai"]
-- 200-300 words about the MCP server for natural language Snowflake querying
+[closing paragraph — lessons learned] Lorem ipsum dolor sit amet.
+````
+
+Files to scaffold (frontmatter is real, body is lorem ipsum + section labels):
+
+- `src/content/articles/building-this-site.md` — tags `["typescript", "css", "static-site"]`, description about ditching React for zero framework runtime
+- `src/content/articles/modern-css-is-amazing.md` — tags `["css", "web-development", "frontend"]`, description about native nesting, `:has()`, container queries, scroll-driven animations
+- `src/content/projects/context-base.md` — `tech: ["typescript", "markdown", "ai", "knowledge-engineering"]`, `featured: true`, description "A structured markdown knowledge repository for grounding AI agents in domain expertise."
+- `src/content/projects/mcp-snowflake.md` — `tech: ["typescript", "snowflake", "mcp", "ai"]`, description about an MCP server for natural-language Snowflake querying
+
+The frontmatter is real because the build parses it and the list pages render title/date/tags/description. The body is disposable — Matt drops real articles in later.
 
 ### Rules
 - All HTML is semantic and accessible

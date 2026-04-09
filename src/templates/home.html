@@ -1,1 +1,29 @@
-<!-- Home page template: hero section, featured articles, featured projects. Extends base.html. -->
+<section class="hero container">
+  <p class="hero__eyebrow">Hello, I'm</p>
+  <h1 class="hero__heading">Matt Noth</h1>
+  <p class="hero__lead">
+    Software Engineer. Context Engineer. Music Maker.
+    I build things on the web and write about what I learn along the way.
+    No framework runtime required.
+  </p>
+  <div class="hero__actions">
+    <a href="/articles/" class="btn">Read the blog</a>
+    <a href="/projects/" class="btn btn--outline">See projects</a>
+  </div>
+</section>
+
+<section class="section container" data-reveal="fade-up">
+  <h2>Recent Articles</h2>
+  <div class="grid-auto">
+    {{recent_articles}}
+  </div>
+  <p><a href="/articles/">All articles &rarr;</a></p>
+</section>
+
+<section class="section container" data-reveal="fade-up">
+  <h2>Featured Projects</h2>
+  <div class="grid-auto">
+    {{featured_projects}}
+  </div>
+  <p><a href="/projects/">All projects &rarr;</a></p>
+</section>

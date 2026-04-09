@@ -270,4 +270,117 @@
       transform: none;
     }
   }
+
+  /* ── Carousel ─────────────────────────────────────────────────────── */
+  .carousel-wrapper {
+    container-type: inline-size;
+    container-name: carousel;
+    position: relative;
+  }
+
+  .carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .carousel-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  .carousel-prev,
+  .carousel-next {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--radius-full);
+    border: 0.0625rem solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: var(--text-base);
+    line-height: 1;
+    padding: 0;
+    transition:
+      background-color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+
+    &:hover {
+      background-color: var(--color-accent);
+      border-color: var(--color-accent);
+      color: var(--color-on-accent);
+      transform: scale(1.08);
+    }
+
+    &:focus-visible {
+      outline: 0.125rem solid var(--color-accent);
+      outline-offset: 0.125rem;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-sm);
+  }
+
+  .carousel-dot {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: var(--radius-full);
+    border: none;
+    background-color: var(--color-border);
+    cursor: pointer;
+    padding: 0;
+    transition:
+      background-color var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+
+    &[aria-current="true"] {
+      background-color: var(--color-accent);
+      transform: scale(1.3);
+    }
+
+    &:focus-visible {
+      outline: 0.125rem solid var(--color-accent);
+      outline-offset: 0.125rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      scroll-behavior: auto;
+    }
+
+    .carousel-dot,
+    .carousel-prev,
+    .carousel-next {
+      transition: none;
+    }
+
+    .carousel-prev:hover,
+    .carousel-next:hover {
+      transform: none;
+    }
+
+    .carousel-dot[aria-current="true"] {
+      transform: none;
+    }
+  }
 }

@@ -1,1 +1,20 @@
-<!-- Single article template: renders article title, date, reading time, and body HTML. Extends base.html. -->
+<div class="container">
+  <article>
+    <header class="article-header">
+      <h1>{{page_title}}</h1>
+      <div class="article-meta">
+        <time datetime="{{date}}">{{date}}</time>
+        <span class="reading-time">{{reading_time}} min read</span>
+      </div>
+      <div class="tags">{{tags}}</div>
+    </header>
+
+    <div class="prose">
+      {{content}}
+    </div>
+
+    <footer class="article-footer">
+      <a href="/articles/" class="back-link">&larr; Back to articles</a>
+    </footer>
+  </article>
+</div>

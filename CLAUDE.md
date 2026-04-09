@@ -95,6 +95,20 @@ The `reviewer` subagent is read-only — it runs builds, checks output, reports 
 
 ---
 
+## Phase execution rules
+
+The main agent is responsible for orchestration before delegation. Before the first specialist delegation of any phase:
+
+1. **Vocabulary reconciliation.** Check `docs/progress.md` open questions for unresolved drift in shared vocabulary (CSS class names, `data-*` attributes, slot names, module keys). If drift exists and the current phase will use that vocabulary, reconcile it as the **first** delegation of the phase — not after templates or modules trip over it.
+2. **Slot-contract pre-flight.** For any phase that touches templates, read both sides of the slot contract: the template spec (what slots the template will reference) **and** the current slot producer (usually `build/pages.ts`). Produce a written slot-gap list. Missing slots become a `build-specialist` delegation that runs before or in parallel with template work, not after.
+3. **Dependency graph.** Write a short dependency graph naming the specialists involved and which deliverables block which. Commit to the ordering before the first delegation. If the graph is wrong, that's visible immediately — if there's no graph, problems only surface in the reviewer audit.
+
+Delegation constraints:
+
+- **CSS class constraint.** Any brief to `content-specialist` or any template-writing work must include: "Use only CSS classes already defined in `src/styles/`. If you need a new class, flag it in your report for `css-specialist` follow-up — do not invent classes on the fly."
+
+---
+
 ## Phase roadmap
 
 - **Phase 0** — Meta setup (this file, subagents, slash commands, docs skeletons). *Completed in the setup session.*
@@ -111,8 +125,8 @@ Each phase is a single Claude Code session. Do not merge phases.
 
 ## Voice & content rules
 
-- First person, authentic. This is Matt's site, not a corporate blog.
-- No lorem ipsum. No placeholder "John Doe" content.
+- First person, authentic. This is Matt's site, not a corporate blog. **This applies to deploy-ready content only — Matt writes the real articles.**
+- **No lorem ipsum in deploy-ready content.** Scaffolding phases use clearly-labeled lorem ipsum with real frontmatter; Claude never writes prose in Matt's voice. The "authentic voice" guarantee is a deploy-time rule, not a scaffolding-time rule.
 - Color palette must be **distinctive and non-generic**. Do not default to purple gradients, Inter, Roboto, or Space Grotesk. Pick something with personality.
 - Code examples in articles should be real, not contrived.
 

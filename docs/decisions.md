@@ -115,3 +115,28 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** `theme-toggle.ts` needs to suppress transition animation during theme switches. The `.no-transition` class was planned but not yet in CSS.
 **Decision:** `theme-toggle.ts` sets `html.style.setProperty('transition', 'none')` directly and removes it inside a `requestAnimationFrame` callback, bypassing the missing CSS class.
 **Consequences:** Works without CSS cooperation. If `.no-transition` is later added to CSS, this inline style approach should be replaced with the class toggle for consistency with the rest of the codebase.
+
+## 2026-04-09 — `data-reveal="fade-up"` as unified vocabulary for templates (partial fix)
+**Context:** Phase 3 native CSS used `data-reveal="slide"` and Phase 4 JS fallback used `data-reveal="fade-up"`. Templates needed one safe value to use across both paths.
+**Decision:** Alias `[data-reveal="fade-up"]` onto the native CSS `slide` rule via a selector addition in `src/styles/animations.css`. Templates use only `fade-up`. Full vocabulary reconciliation (covering `fade-in`, `scale-in`, `slide`, `scale`) deferred to Phase 6.
+**Consequences:** `fade-up` is the only safe `data-reveal` value for new templates until Phase 6. The other four values remain split across paths. The aliasing approach adds one selector per native rule — cheap, but tech debt until the full reconciliation lands.
+
+## 2026-04-09 — Kept content-specialist's full-prose articles; rule change is prospective only
+**Context:** `content-specialist` wrote ~1800 words of real prose for the two articles and two projects, driven by the Phase 5 prompt spec ("write as Matt, authentic voice"). CLAUDE.md's "no lorem ipsum" rule was ambiguous about scaffolding vs. deploy-ready content.
+**Decision:** Keep the existing prose as-is per Matt's direction. Update `CLAUDE.md` and `docs/prompts/05-content.md` prospectively to clarify that "no lorem ipsum" applies to deploy-ready content only; scaffolding should use labeled lorem ipsum.
+**Consequences:** Current articles contain Claude-written prose that should be replaced by Matt before deploy. The rule clarification prevents the same ambiguity in future phases.
+
+## 2026-04-09 — `SITE_ORIGIN = "https://mattnoth.dev"` in `build/pages.ts`
+**Context:** `og:url` meta tag required a canonical absolute URL per page. No existing constant in `build/` or `netlify.toml` held the origin.
+**Decision:** Add `SITE_ORIGIN = "https://mattnoth.dev"` as a named constant in `build/pages.ts`. Value matches the `mattnoth` handle already used in `base.html` social links.
+**Consequences:** If the domain changes, this constant and the social link in `base.html` must both be updated. There is currently no single source of truth — two places to update on a domain change.
+
+## 2026-04-09 — Separate `page_title` and `title` slots instead of stripping suffix at template side
+**Context:** Browser `<title>` and `og:title` needed the suffixed form ("Article — Matt Noth"), but the `<h1>` needed only the raw title. Originally both used the `title` slot, requiring templates to strip the suffix — invisible coupling.
+**Decision:** Two slots: `title` (suffixed, for `<title>` and OG tags) and `page_title` (raw, for `<h1>`). Both are produced by `build/pages.ts` and consumed by the appropriate template locations.
+**Consequences:** Adding a new page type requires populating both slots. Eliminates the strip-suffix antipattern at the template side. If the suffix format ever changes, only `pages.ts` needs to change.
+
+## 2026-04-09 — "Phase execution rules" added to `CLAUDE.md` rather than a separate process doc
+**Context:** Phase 5 orchestration gaps (missing CSS class constraint, no slot pre-flight, unreconciled vocabulary drift) were the session's main cost center. The lessons needed to be codified somewhere that is always in main-agent context.
+**Decision:** New "Phase execution rules" section added directly to `CLAUDE.md` instead of a separate file under `docs/`.
+**Consequences:** Rules are in context at every session start via `CLAUDE.md` automatic load. A separate doc would be missed during phase starts unless explicitly read. Adds length to an already long `CLAUDE.md` — acceptable trade-off.

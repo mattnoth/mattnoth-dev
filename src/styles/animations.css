@@ -51,12 +51,50 @@
         animation-range: entry 0% entry 40%;
       }
 
-      [data-reveal="slide"] {
+      [data-reveal="slide"],
+      [data-reveal="fade-up"] {
         animation-name: slide-up;
       }
 
       [data-reveal="scale"] {
         animation-name: scale-in;
+      }
+    }
+  }
+
+  /* JS-driven reveal fallback — only active when scroll-driven animations are unsupported.
+     Gated so these rules never compete with the [data-reveal] native path above. */
+  @supports not (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      [data-reveal].reveal-pending {
+        opacity: 0;
+      }
+
+      [data-reveal="fade-up"].reveal-pending {
+        transform: translateY(1.5rem);
+      }
+
+      [data-reveal="scale-in"].reveal-pending {
+        transform: scale(0.94);
+      }
+
+      [data-reveal].revealed {
+        opacity: 1;
+        transform: none;
+        transition:
+          opacity var(--duration-slow) ease,
+          transform var(--duration-slow) ease;
+      }
+
+      [data-reveal].no-transition {
+        transition: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [data-reveal].reveal-pending {
+        opacity: 1;
+        transform: none;
       }
     }
   }
