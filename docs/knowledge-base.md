@@ -55,7 +55,35 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 
 ## CSS
 
-_(entries will be added once Phase 3 begins)_
+### `concatCss` stub-detection drops files whose content starts with `/*`
+**Date:** 2026-04-09
+**Context:** Phase 1 leaves comment-only CSS partials as placeholders. `concatCss` skips any file whose trimmed content starts with `/*` to avoid including stubs in `dist/main.css`.
+**Learning:** Design rationale comments must live inside the `@layer` block, not before it. A comment at the top of the file triggers the stub check and silently drops the file from the concat output. `css-specialist` hit this on `tokens.css` and `typography.css` and moved comments inside the layer block.
+
+### `--color-on-accent` must be a fixed token, not theme-flipping
+**Date:** 2026-04-09
+**Context:** The amber accent button background is fixed (same hue in both light and dark modes). The button's text color needs to be dark in both modes.
+**Learning:** If you set `--color-on-accent` to reference `--color-bg`, it flips to near-black in dark mode (where `--color-bg` is near-black) and destroys contrast on the button. Define `--color-on-accent` as a fixed dark value that does not participate in the `prefers-color-scheme` swap.
+
+### `@layer` with the same name across multiple files is intentional
+**Date:** 2026-04-09
+**Context:** Both `src/styles/nav.css` and `src/styles/components.css` write into `@layer components { … }`.
+**Learning:** The CSS cascade merges same-named layer blocks in source order. Nav and component rules can live in separate files while sharing the semantic layer. This is correct and deliberate — do not rename one of them to avoid the "duplicate" layer name.
+
+### `-webkit-backdrop-filter` required for Safari sticky-header blur
+**Date:** 2026-04-09
+**Context:** The sticky header uses `backdrop-filter: blur(...)` for a frosted-glass effect.
+**Learning:** Safari requires `-webkit-backdrop-filter` alongside the unprefixed property. Without it the header is opaque on all Safari versions. Both declarations must be present.
+
+### IDE linters warn on `oklch()` / `color-mix(in oklch, …)` — safe to ignore
+**Date:** 2026-04-09
+**Context:** VSCode CSS linters flag `oklch()` and `color-mix(in oklch, …)` as unsupported for Chrome < 111.
+**Learning:** Chrome 111 shipped March 2023. This project targets evergreen browsers. The warnings are false positives — dismiss them. Do not add any fallback hex values or polyfills.
+
+### Fraunces loaded from Google CDN with `unicode-range` — self-hosting path
+**Date:** 2026-04-09
+**Context:** `src/styles/typography.css` loads Fraunces via `@font-face` pointing to Google Fonts CDN, with `unicode-range` for subsetting.
+**Learning:** Subsetting is handled by Google on the CDN path. If self-hosting is needed for privacy or offline builds, pull the woff2 files into `src/assets/fonts/` and update the `src` URLs in the `@font-face` declarations. No other changes required.
 
 ---
 

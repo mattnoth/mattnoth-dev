@@ -1,1 +1,103 @@
-/* Design tokens: CSS custom properties on :root (colors in oklch, spacing scale, type scale, etc.). Lives in @layer tokens. */
+@layer tokens {
+  /*
+    Palette: "Workshop at Night"
+    - Near-black slate bg (oklch ~15% lightness, cool hue)
+    - Warm cream text (oklch ~92%)
+    - Vivid amber-orange accent (oklch ~72%, hue ~65) — punchy without being neon
+    - Surfaces use slight lightness steps above bg
+
+    Heading font: Fraunces — a quirky optical-size serif with real character.
+    Chosen over geometric sans defaults for its warmth and distinctiveness in
+    a portfolio context. The "soft" axis gives it editorial weight at display sizes.
+  */
+  :root {
+    /* Colors — light mode */
+    --color-bg:          oklch(96% 0.012 80);
+    --color-surface:     oklch(93% 0.014 78);
+    --color-text:        oklch(18% 0.02 260);
+    --color-text-muted:  oklch(45% 0.018 260);
+    --color-accent:      oklch(68% 0.18 55);
+    --color-accent-hover: oklch(62% 0.20 52);
+    --color-border:      oklch(82% 0.016 80);
+    --color-code-bg:     oklch(90% 0.018 78);
+    /* Fixed-dark for text on accent bg — same value in both modes so accent button text stays legible */
+    --color-on-accent:   oklch(14% 0.016 260);
+
+    /* Type scale — fluid via clamp(), ~1.25 modular ratio */
+    --text-xs:   clamp(0.70rem,  0.68rem + 0.10vw, 0.75rem);
+    --text-sm:   clamp(0.875rem, 0.84rem + 0.17vw, 0.9375rem);
+    --text-base: clamp(1rem,     0.96rem + 0.20vw, 1.0625rem);
+    --text-lg:   clamp(1.125rem, 1.06rem + 0.30vw, 1.25rem);
+    --text-xl:   clamp(1.25rem,  1.14rem + 0.55vw, 1.5625rem);
+    --text-2xl:  clamp(1.5625rem,1.34rem + 1.12vw, 2.0625rem);
+    --text-3xl:  clamp(1.9531rem,1.56rem + 1.96vw, 2.8125rem);
+
+    /* Font stacks */
+    --font-heading: 'Fraunces', 'Georgia', serif;
+    --font-body:    ui-sans-serif, system-ui, sans-serif;
+    --font-mono:    ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+
+    /* Spacing scale — rem-based, ~1.5 ratio */
+    --space-2xs: 0.25rem;
+    --space-xs:  0.5rem;
+    --space-sm:  0.75rem;
+    --space-md:  1rem;
+    --space-lg:  1.5rem;
+    --space-xl:  2.25rem;
+    --space-2xl: 3.375rem;
+    --space-3xl: 5rem;
+
+    /* Border radius */
+    --radius-sm:   0.25rem;
+    --radius-md:   0.5rem;
+    --radius-lg:   1rem;
+    --radius-full: 9999px;
+
+    /* Transitions */
+    --duration-fast:   150ms;
+    --duration-normal: 300ms;
+    --duration-slow:   500ms;
+
+    /* Container */
+    --container-max:     75rem;
+    --container-padding: clamp(1rem, 5vw, 3rem);
+  }
+
+  /* Dark mode — system preference */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg:          oklch(14% 0.016 260);
+      --color-surface:     oklch(19% 0.018 260);
+      --color-text:        oklch(92% 0.012 80);
+      --color-text-muted:  oklch(62% 0.018 80);
+      --color-accent:      oklch(72% 0.18 58);
+      --color-accent-hover: oklch(78% 0.20 60);
+      --color-border:      oklch(28% 0.018 260);
+      --color-code-bg:     oklch(20% 0.020 260);
+    }
+  }
+
+  /* Manual dark override — wins over system preference via specificity on [data-theme] */
+  [data-theme="dark"] {
+    --color-bg:          oklch(14% 0.016 260);
+    --color-surface:     oklch(19% 0.018 260);
+    --color-text:        oklch(92% 0.012 80);
+    --color-text-muted:  oklch(62% 0.018 80);
+    --color-accent:      oklch(72% 0.18 58);
+    --color-accent-hover: oklch(78% 0.20 60);
+    --color-border:      oklch(28% 0.018 260);
+    --color-code-bg:     oklch(20% 0.020 260);
+  }
+
+  /* Manual light override */
+  [data-theme="light"] {
+    --color-bg:          oklch(96% 0.012 80);
+    --color-surface:     oklch(93% 0.014 78);
+    --color-text:        oklch(18% 0.02 260);
+    --color-text-muted:  oklch(45% 0.018 260);
+    --color-accent:      oklch(68% 0.18 55);
+    --color-accent-hover: oklch(62% 0.20 52);
+    --color-border:      oklch(82% 0.016 80);
+    --color-code-bg:     oklch(90% 0.018 78);
+  }
+}

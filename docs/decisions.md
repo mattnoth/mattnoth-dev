@@ -70,3 +70,28 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** After `reviewer` flagged the sourcemap issue, `SendMessage` to the warm build-specialist was not available in this harness. Spawning a fresh subagent to flip one boolean would cold-start a full context load.
 **Decision:** Main agent edited `build/build.ts:95` directly after explicit user approval.
 **Consequences:** One-off exception. Does not change the directory ownership rule going forward. Any future edits to `build/` must go through `build-specialist`.
+
+## 2026-04-09 — "Workshop at Night" amber-orange palette (hue ~55) over purple/teal defaults
+**Context:** CLAUDE.md mandates a distinctive, non-generic color palette. Purple gradients and teal are the two most common defaults for developer personal sites.
+**Decision:** Amber-orange accent at `oklch(68% 0.18 55)` (light) / `oklch(72% 0.18 58)` (dark), on warm cream (light mode) and cool near-black slate (dark mode). All colors expressed as `oklch()` or `color-mix(in oklch, …)`.
+**Consequences:** Palette reads warm and direct without reading corporate. Commits future CSS work to staying within oklch — no hex or rgb fallbacks. Palette has not yet been reviewed in a real browser; may be adjusted before Phase 6.
+
+## 2026-04-09 — Fraunces as heading font
+**Context:** Needed a heading font with editorial personality that is not on the banned list (Inter, Roboto, Space Grotesk). Fraunces is a variable optical-size serif with a quirky display personality.
+**Decision:** Fraunces for all headings, loaded via `@font-face` from Google CDN with `unicode-range`. Body text stays in the system-ui stack.
+**Consequences:** Adds one external CDN request per page load (mitigated by `font-display: swap` and Google's CDN performance). Commits the typographic identity of the site to a serif display font for headings. Self-hosting path documented in knowledge base if needed.
+
+## 2026-04-09 — `--color-on-accent` as a fixed non-theme-flipping token
+**Context:** The amber accent background is the same hue in both light and dark modes. Button text on that background must be dark in both modes.
+**Decision:** `--color-on-accent` is defined as a fixed dark value in `:root` and is not overridden in `prefers-color-scheme: dark`. It does not reference `--color-bg`.
+**Consequences:** Any future color scheme refactors must not naively map all foreground/background tokens through the dark-mode swap — accent-on tokens are a separate category that must be reviewed independently.
+
+## 2026-04-09 — `@layer components` shared across `nav.css` and `components.css`
+**Context:** Nav and card/component styles are authored in separate files but both belong semantically in the components layer of the cascade.
+**Decision:** Both files write into `@layer components { … }`. The CSS cascade merges same-named layer blocks in source order.
+**Consequences:** The split is purely organizational — to a browser there is one `components` layer. Future maintainers must know this is intentional; it is not a mistake or a naming collision.
+
+## 2026-04-09 — One `!important` accepted in `animations.css` inside `prefers-reduced-motion`
+**Context:** The project's CSS rules prohibit `!important`. The `prefers-reduced-motion: reduce` override block needs to defeat any inline or JS-set animation values that may have already been applied.
+**Decision:** Allow a single `!important` exception inside `@media (prefers-reduced-motion: reduce)` in `src/styles/animations.css`. This is the established a11y pattern for motion overrides.
+**Consequences:** Creates a documented exception to the no-`!important` rule. Future CSS authors must not use this as a precedent for general-purpose `!important` usage — it applies only to accessibility motion overrides.

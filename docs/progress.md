@@ -4,27 +4,27 @@
 - [x] Phase 0 — Meta setup (CLAUDE.md, subagents, slash commands, docs/)
 - [x] Phase 1 — Scaffold & config
 - [x] Phase 2 — Build system
-- [ ] Phase 3 — CSS architecture
+- [x] Phase 3 — CSS architecture
 - [ ] Phase 4 — TypeScript interactive modules
 - [ ] Phase 5 — Content & templates
 - [ ] Phase 6 — Integration, polish, deploy
 
 ## Last session — 2026-04-09
-- Delegated full Phase 2 pipeline to `build-specialist`; all `build/` stubs from Phase 1 replaced with real implementations
-- `build/markdown.ts`: `parseContentDir<T>`, `ArticleMeta`/`ProjectMeta`/`ParsedContent<T>` types, reading time, prod-only draft filter, date-desc sort
-- `build/templates.ts`: slot-based string-replacement engine (`renderTemplate`/`renderPage`) with stub detection for Phase 1 comment-only placeholders
-- `build/pages.ts`: home, articles list, individual articles, projects list, individual projects — clean URLs (`dist/articles/<slug>/index.html`)
-- `build/copy-assets.ts`: recursive `src/assets/` copy + root static files
-- `build/build.ts`: 6-step orchestrator with `--dev` flag, per-step timing, `esbuild ctx.serve()` + `ctx.watch()` on `localhost:3000`, scoped `node:fs.watch` rebuilds by file extension
-- `tsconfig.build.json` extended with `allowImportingTsExtensions: true`; `package.json` typecheck and build scripts updated to run both tsconfigs
-- Resolved spec ambiguity on production sourcemaps: flipped `stepJs(true, false)` → `stepJs(true, true)` in `build/build.ts:95` after user approval
-- Smoke tests green: `npm run typecheck` passes both tsconfigs, `npm run build` completes in ~9ms with `dist/main.js`, `dist/main.js.map`, `dist/main.css`
+- Delegated full Phase 3 to `css-specialist`; all 8 CSS partials in `src/styles/` replaced with real implementations (~864 lines source, 994 lines concatenated into `dist/main.css`)
+- Cascade layer system in place: `src/styles/main.css` declares `@layer reset, tokens, typography, layout, components, animations, utilities;`; every rule lives inside a layer
+- "Workshop at Night" palette committed: amber-orange accent `oklch(68% 0.18 55)` light / `oklch(72% 0.18 58)` dark on warm cream (light) / cool near-black slate (dark); zero hex/rgb/named colors
+- Heading font: Fraunces (variable optical-size serif) via `@font-face` from Google CDN with `font-display: swap` and `unicode-range`; falls back to Georgia
+- Pure-CSS mobile hamburger in `src/styles/nav.css` via hidden checkbox + `:has()` — no JS required
+- Container-query responsive `.card` in `src/styles/components.css` using `container-type: inline-size` + `@container (min-width: 500px)`
+- Scroll-driven reveal animation in `src/styles/animations.css` behind `@supports (animation-timeline: view())`; `prefers-reduced-motion` override present in all animated rules
+- Build verification green: `npm run typecheck` passes both tsconfigs; `npm run build` completes in ~10ms; `[css] concatenated 8 file(s) → dist/main.css` (994 lines)
 
 ## Next session
-Open a fresh session, run `/start-session`, then execute Phase 3 from `docs/prompts/03-css.md` — delegate to `css-specialist` to implement the real CSS architecture (cascade layers, design tokens, typography, layout, components, animations) into `src/styles/`. The build pipeline is ready: `concatCss` will automatically include any partial whose content is not a `/* */`-only stub.
+Open a fresh session, run `/start-session`, then execute Phase 4 from `docs/prompts/04-ts-modules.md` — delegate to `ts-specialist` to implement the real browser-side TypeScript modules in `src/ts/` (main entry, nav, theme-toggle, scroll-reveal, carousel). Each module must export `{ mount: (el: HTMLElement) => void }`.
 
 ## Open questions
 - Is `pretty_urls` + `[[redirects]]` in `netlify.toml` redundant? Revisit in Phase 6.
+- Palette and typography not yet reviewed in browser. Run `npm run dev` and eyeball before treating them as locked in.
 
 ## Blockers
 - (none)

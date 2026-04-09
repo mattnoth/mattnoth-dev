@@ -1,1 +1,162 @@
-/* Navigation: site header, nav links, mobile menu, active states. Lives in @layer components. */
+@layer components {
+  /* ── Site logo / wordmark ─────────────────────────────────────────── */
+  .nav__logo {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+
+    & span {
+      color: var(--color-accent);
+    }
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  /* ── Nav shell ────────────────────────────────────────────────────── */
+  .nav {
+    /* Scroll-hide: JS adds .nav--hidden which translates the header up */
+    transition: transform var(--duration-normal) ease;
+
+    &.nav--hidden {
+      transform: translateY(-110%);
+    }
+
+    /* Hidden checkbox — the pure-CSS toggle mechanism */
+    & #nav-toggle {
+      display: none;
+      position: absolute;
+      inset-inline-start: -9999px;
+    }
+  }
+
+  /* ── Nav links — desktop base ─────────────────────────────────────── */
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & a {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      padding-block: var(--space-2xs);
+      border-block-end: 0.125rem solid transparent;
+      transition:
+        color var(--duration-fast) ease,
+        border-color var(--duration-fast) ease;
+
+      &:hover,
+      &[aria-current="page"] {
+        color: var(--color-text);
+        border-block-end-color: var(--color-accent);
+      }
+    }
+  }
+
+  /* ── Hamburger label — hidden on desktop ──────────────────────────── */
+  .nav__toggle-label {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3125rem;
+    block-size: 2.5rem;
+    inline-size: 2.5rem;
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-fast) ease;
+
+    &:hover {
+      background-color: var(--color-surface);
+    }
+
+    & span {
+      display: block;
+      block-size: 0.125rem;
+      inline-size: 100%;
+      background-color: var(--color-text);
+      border-radius: var(--radius-full);
+      transition:
+        transform var(--duration-normal) ease,
+        opacity var(--duration-fast) ease;
+      transform-origin: center;
+    }
+  }
+
+  /* ── Mobile layout — below 48rem (768px) ─────────────────────────── */
+  @media (max-width: 48rem) {
+    .nav__toggle-label {
+      display: flex;
+    }
+
+    .nav__links {
+      position: absolute;
+      inset-block-start: 100%;
+      inset-inline: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background-color: var(--color-bg);
+      border-block-end: 0.0625rem solid var(--color-border);
+      padding-block: var(--space-sm);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-0.5rem);
+      transition:
+        opacity var(--duration-normal) ease,
+        transform var(--duration-normal) ease;
+
+      & a {
+        padding-inline: var(--container-padding);
+        padding-block: var(--space-sm);
+        border-block-end: none;
+        font-size: var(--text-base);
+
+        &:hover,
+        &[aria-current="page"] {
+          border-block-end: none;
+          color: var(--color-accent);
+        }
+      }
+    }
+
+    /* Open state — :has() on the nav reads the hidden checkbox */
+    .nav:has(#nav-toggle:checked) {
+      & .nav__links {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      /* Animate hamburger → X */
+      & .nav__toggle-label span:nth-child(1) {
+        transform: translateY(0.4375rem) rotate(45deg);
+      }
+
+      & .nav__toggle-label span:nth-child(2) {
+        opacity: 0;
+      }
+
+      & .nav__toggle-label span:nth-child(3) {
+        transform: translateY(-0.4375rem) rotate(-45deg);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav,
+    .nav__links,
+    .nav__toggle-label span {
+      transition: none;
+    }
+  }
+}
