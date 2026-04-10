@@ -9,17 +9,16 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-10 (about section, mobile polish, table styles, overflow fix)
-- Added about section to home page (`src/templates/home.html`): beach photo left / bio text right on wide viewports, stacked on mobile via container query. Three new BEM classes: `.about`, `.about__photo`, `.about__text`.
-- Wired Matt's authored bio copy (C#/.NET, ELT pipelines, MCP/multi-agent) and moodsmith music link into the about section. Used Matt's writing directly.
-- Implemented responsive layout for `.about` in `src/styles/layout.css` using container query (`container-type: inline-size`) — consistent with CLAUDE.md rule of container queries for component-scoped responsive, media queries for page-level layout.
-- Tightened mobile vertical padding: `.about` uses `--space-md` base promoted to `--space-xl` at wide; hero `padding-block-start` drops from `2xl` to `xl` on mobile.
-- Fixed article page horizontal overflow bug (`src/styles/layout.css`): added `grid-template-columns: minmax(0, 1fr)` to `body` grid — corrects the root cause (implicit auto grid track) rather than masking with `overflow: hidden` on a child.
-- Added `.prose table` styles to `src/styles/typography.css`: scrollable-island idiom (`display: block; overflow-x: auto`), borders, zebra rows — handles wide tables in the Cortex Agents article.
-- Used `matt-beach-jpg-smaller.jpg` (347KB) over `matt-beach.png` (651KB) for the about photo.
+## Last session — 2026-04-10 (home page visual refinement)
+- Tightened `.section` vertical padding in `src/styles/layout.css`: `padding-block: 2xl → xl`; consecutive-section override `xl → md`. Comment updated to reflect new math.
+- Tightened hero top padding one stop: mobile `xl → lg`, ≥48rem `2xl → xl`; bottom `xl` preserved. (`src/styles/layout.css`)
+- Deleted dead `@container` block from `.about` in `src/styles/layout.css` — the block was a no-op because an element cannot query its own container. Removed `container-type`/`container-name` from `.about` and simplified the comment to reflect stacked-only intent.
+- Split about bio from two paragraphs into three in `src/templates/home.html`; removed `max-inline-size: 75ch` and `margin-inline: auto` from `.about__text` so text aligns to the photo's left edge.
+- Split hero lead into two `<p class="hero__lead">` elements in `src/templates/home.html`; added `.hero__lead:has(+ .hero__lead) { margin-block-end: var(--space-sm); }` in `src/styles/layout.css` to tighten inter-sentence gap while preserving `xl` gap before `.hero__actions`.
+- Fixed header nav centering in `src/styles/nav.css` and `src/styles/layout.css`: switched `.site-header .container` to `grid-template-columns: 1fr auto 1fr` at ≥48rem with `justify-self: start` on `.nav__logo` and `justify-self: end` on `.nav__controls`. Removed dead `margin-inline: auto` from `.nav__links`.
 
 ## Next session
-Continue post-Phase 6 polish. Candidates: (1) optimize image delivery — convert `matt-beach-jpg-smaller.jpg` to webp and add `srcset` / `<picture>` in `src/templates/home.html`; (2) decide the fate of `src/content/projects/mcp-snowflake.md` (ghostwritten prose; options: delete body, delete entry, rewrite later); (3) decide presentation of Projects page with ~0–1 real entries; (4) address immutable cache / content-hash issue in `netlify.toml` before treating the site as production-ready.
+Home page visual polish is complete and shipping-ready. Next work is content-driven: whichever real article or project Matt wants to land next. Outstanding pre-production candidates: (1) optimize image delivery — convert `matt-beach-jpg-smaller.jpg` to webp + `<picture srcset>` in `src/templates/home.html`; (2) decide fate of `src/content/projects/mcp-snowflake.md` (ghostwritten prose); (3) decide Projects page presentation with ~0–1 real entries; (4) address immutable cache / content-hash issue in `netlify.toml`.
 
 ## Open questions
 - `src/content/projects/mcp-snowflake.md` has Claude-ghostwritten prose in the body (same pattern as deleted articles). Options: (A) delete body, keep frontmatter + title only (needs a template or fallback tweak since `project.html` expects a body), (B) delete the project entirely, (C) leave it and rewrite later. Decision needed before deploy.

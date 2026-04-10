@@ -226,3 +226,18 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-10
 **Context:** Cortex Agents article has a wide comparison table that overflowed the prose column on narrow viewports.
 **Learning:** Wrapping a `<table>` in a div with `overflow-x: auto` is common but requires an extra DOM node and a class. A simpler CSS-only alternative that matches the existing `<pre>` pattern: `.prose table { display: block; overflow-x: auto; }`. Setting `display: block` makes the table scrollable without a wrapper element. The tradeoff is that `display: block` removes table-specific formatting semantics for accessibility — acceptable here because the table remains readable; for screen-reader-critical tables, keep the native `display: table` and use a wrapper div.
+
+### Container queries cannot self-query
+**Date:** 2026-04-10
+**Context:** `.about` in `src/styles/layout.css` had `container-type: inline-size` and then an `@container about (min-width: 48rem)` block inside the same rule. The block was dead from day one.
+**Learning:** An element cannot be its own container. `@container` only matches against an ancestor container, not the element that declares `container-type`. The selector `.about { container-type: inline-size; @container about (...) { ... } }` is syntactically valid but always evaluates as false. Use a parent wrapper as the container, or (for simple one-breakpoint cases) use a `@media` query instead.
+
+### `margin-inline: auto` on a flex grandchild is a no-op
+**Date:** 2026-04-10
+**Context:** `.nav__links` had `margin-inline: auto` applied to try to center the nav links. The parent flex item was the `<nav>` wrapper, not `.nav__links` itself.
+**Learning:** `margin-inline: auto` on a flex item absorbs free space on the main axis of its direct flex parent. If the element is not a direct child of the flex container, the declaration does nothing because the intermediate wrapper is already content-sized and has no free space to distribute. The fix is to restructure so the element is a direct child of the container with free space, or change the layout model on the true parent.
+
+### `justify-content: space-between` does not true-center a middle item with asymmetric flanks
+**Date:** 2026-04-10
+**Context:** Site header had logo (left) + nav (middle) + controls (right) as three flex children using `justify-content: space-between`. Logo and controls have different widths.
+**Learning:** `space-between` places equal gaps between items, not equal margins from the container edges. When the two flanking items are different widths, the middle item is visually off-center. The correct primitive for true center alignment with asymmetric flanks is CSS Grid: `grid-template-columns: 1fr auto 1fr`. The `1fr` tracks each absorb the remaining space equally, pinning the `auto` middle track to the container's true center regardless of flanking widths.

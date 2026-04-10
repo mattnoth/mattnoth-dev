@@ -205,3 +205,18 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** The about section is a self-contained component (photo + text) whose breakpoint should depend on its own available width, not the viewport. The hero padding tweak is a page-level spacing adjustment with no component boundary.
 **Decision:** Container query (`container-type: inline-size` on `.about`, `@container` for the wide layout) for the about section. Regular `@media` for the hero `padding-block-start` reduction on mobile.
 **Consequences:** Consistent with CLAUDE.md rule: container queries for component-scoped responsive, media queries for page-level layout. The about section could be dropped into a narrower column layout and the breakpoint would still trigger correctly.
+
+## 2026-04-10 — Stacked about section (no side-by-side grid)
+**Context:** The about section had a dead `@container` block that was supposed to produce a 40/60 side-by-side layout (photo left, bio text right) on wide viewports. The block never fired because the element queried itself. Fixing the container query properly would require a parent wrapper; the alternative was to drop the side-by-side ambition.
+**Decision:** Remove the container query, `container-type`, and `container-name` entirely. The about section is always stacked (photo above, bio below). Bio text width is unconstrained (no `max-inline-size`) so it aligns to the photo's left edge.
+**Consequences:** The profile photo is 1280×720 landscape — placing it in a 40% column beside text would display it at reduced size and wrecked proportions. Stacked layout preserves the landscape presentation. If a side-by-side layout is ever wanted, a parent `.about-wrapper` container would be needed so `.about` can query it as an ancestor.
+
+## 2026-04-10 — Two hero lead sentences as two `<p>` elements, not widened single paragraph
+**Context:** The hero lead was a single `<p>` with two sentences. Options: (1) keep single `<p>`; (2) split into two `<p class="hero__lead">` with tighter inner gap; (3) widen the 50ch cap to 72ch. Matt preferred the two-sentence rhythm but not widening the hero footprint.
+**Decision:** Split into two `<p class="hero__lead">` elements. Added `.hero__lead:has(+ .hero__lead) { margin-block-end: var(--space-sm); }` in `src/styles/layout.css` to produce a tight inter-sentence gap while preserving the `xl` gap before `.hero__actions`. 50ch cap unchanged.
+**Consequences:** The `:has()` selector is the only new CSS. The tight gap is structural (first lead before second lead) rather than a hard-coded `.hero__lead--intro` class. If a third sentence is ever added, a second `<p class="hero__lead">` inherits the treatment automatically.
+
+## 2026-04-10 — CSS Grid (`1fr auto 1fr`) for header nav centering at desktop
+**Context:** Header has three direct children with unequal widths: logo, nav links, controls (theme toggle + hamburger). `justify-content: space-between` was the prior flex layout. The nav links appeared visually off-center because logo and controls have different widths.
+**Decision:** At `@media (min-width: 48rem)`, switch `.site-header .container` to `display: grid; grid-template-columns: 1fr auto 1fr`. Apply `justify-self: start` to `.nav__logo` and `justify-self: end` to `.nav__controls`. Mobile layout (flex + hamburger) is unchanged.
+**Consequences:** True center alignment regardless of flanking widths. Grid is scoped to the desktop breakpoint so it does not affect mobile dropdown behavior. `align-items: center` from the flex base rule carries into the grid context — no duplication needed.
