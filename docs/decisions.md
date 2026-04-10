@@ -235,3 +235,13 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** Projects needed a `draft` flag matching the article behavior: visible in `npm run dev`, filtered out in production builds.
 **Decision:** Added `draft?: boolean` to `ProjectMeta` and `parseProjectMeta`. Reused the existing production-only filter at `build/markdown.ts:165-170` that already handled articles generically — no new filter logic written.
 **Consequences:** Draft projects are still processed and rendered in dev mode, so Matt can keep editing placeholder content. Production builds suppress them. When Matt flips `draft: false` on `mcp-snowflake.md` (or deletes the line), the project appears in production automatically — no build changes needed.
+
+## 2026-04-10 — Swap repo on existing Netlify site rather than create a new site
+**Context:** Local repo was linked to a new GitHub remote (`mattnoth/mattnoth-dev`). Options: create a fresh Netlify site pointing at the new repo, or re-link the existing Netlify site.
+**Decision:** Re-linked the existing Netlify site via the "Link to a different repository" UI flow. Did not create a new site.
+**Consequences:** Site ID, custom domain, env vars, and deploy history all preserved. Any future tooling that references the Netlify site ID (API calls, CLI deploys, webhooks) continues to work without reconfiguration. Creating a new site would have required re-binding the custom domain and recreating any env vars.
+
+## 2026-04-10 — `netlify.toml` as sole source of truth for publish dir and Node version
+**Context:** During the Netlify repo swap, the UI publish-directory field showed `public/` while `netlify.toml` had `publish = "dist"`. Netlify also offers a UI field for Node version.
+**Decision:** Correct the UI publish-directory to `dist` to match `netlify.toml`, and rely on `netlify.toml` (`NODE_VERSION=22` is already pinned there) rather than setting a UI env var.
+**Consequences:** `netlify.toml` is the authority. UI fields are kept in sync to avoid confusion but are not load-bearing. Any future build config changes (Node upgrade, publish dir change) must go into `netlify.toml` first; updating the UI is secondary cosmetic hygiene.

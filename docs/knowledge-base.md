@@ -261,3 +261,18 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-10
 **Context:** During parallel CSS + HTML delegation for the `.empty-state` class, the build could pass lint even if the CSS side had not yet landed.
 **Learning:** `build/lint-classes.ts` fails on CSS class selectors not found in HTML, but it does NOT fail on HTML classes not found in CSS — that direction of drift passes the build silently. When introducing a new class in a parallel delegation (HTML producer and CSS consumer in separate agents), verify both sides manually after merging rather than relying on the lint step alone.
+
+### Netlify repo-swap UI path is non-obvious
+**Date:** 2026-04-10
+**Context:** Needed to link an existing Netlify site to a new GitHub repo without losing site ID, domain, or deploy history.
+**Learning:** The option lives at Site configuration → Build & deploy → Continuous deployment → Manage repository → "Link to a different repository". If that option is not visible, click "Unlink repository" first — the "Link repository" button surfaces in the same spot after unlinking. Creating a new Netlify site is not necessary and would lose the site ID and domain binding.
+
+### Netlify UI publish-directory field can diverge from `netlify.toml`
+**Date:** 2026-04-10
+**Context:** After swapping the repo, the Netlify UI showed `public/` as the publish directory while `netlify.toml` had `publish = "dist"`.
+**Learning:** `netlify.toml` wins at build time, but the UI field can still show a stale value from a previous site configuration. On any repo swap or new site link, verify the UI publish-directory field matches `netlify.toml`. Mismatches cause dashboard confusion and can mislead debugging if someone reads the UI rather than the toml.
+
+### Netlify "Functions directory" default placeholder is not real config
+**Date:** 2026-04-10
+**Context:** During Netlify repo-swap review, the UI showed `netlify/functions` in the Functions directory field.
+**Learning:** This is a default placeholder in the Netlify UI, not user-entered configuration. Netlify silently ignores it when the folder is absent. Do not mistake placeholder text for a setting that needs to be cleared or matched in `netlify.toml`.

@@ -9,18 +9,16 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-10 (social links, draft flag, empty-state polish)
-- External-link hygiene: moodsmith `<a>` in `src/templates/home.html:25` gained `target="_blank"` + `rel="noopener noreferrer"`.
-- Removed trailing `---` from `src/content/articles/cortex-agents.md`; dropped `.article-footer` top border and padding in `src/styles/components.css` (lines 403-407) — border sat too close to page footer.
-- Removed `.hero` `border-block-end` from `src/styles/layout.css:84` so hero flows into about section without a visual rule between buttons and photo.
-- Introduced data-driven footer social links in `build/pages.ts`: `SocialLink` type, `SOCIAL_LINKS` array with `{ label, href, enabled }`, `SOCIAL_LINKS_HTML` builder, `BASE_SLOTS` spread into every `generatePage` call. `src/templates/base.html` footer `<ul class="nav__links">` now renders from `{{social_links}}` slot. X present but `enabled: false`.
-- Updated LinkedIn to canonical `https://www.linkedin.com/in/mattnoth/` in `src/templates/base.html`.
-- Added `draft?: boolean` to `ProjectMeta` and parsed it in `parseProjectMeta` in `build/markdown.ts`; existing production-only filter at `build/markdown.ts:165-170` handles runtime filtering. Marked `src/content/projects/mcp-snowflake.md` as `draft: true`.
-- Added `EMPTY_PROJECTS_HTML` constant in `build/pages.ts` rendering `<p class="empty-state">…</p>` when project lists are empty; added `.empty-state` rule in `src/styles/components.css` with `grid-column: 1 / -1`, muted color, centered text, `padding-block: var(--space-xl)`.
-- Production build confirmed green: 38 HTML classes / 53 CSS classes in sync, sitemap 4 URLs, `dist/projects/mcp-snowflake/` absent, empty-state renders on both project surfaces.
+## Last session — 2026-04-10 (GitHub remote + Netlify repo swap)
+- Linked local repo to new GitHub remote at `https://github.com/mattnoth/mattnoth-dev.git`; pushed `main` with upstream tracking (`git push -u origin main`).
+- Walked through Netlify's "Link to a different repository" flow under Site configuration → Build & deploy → Continuous deployment → Manage repository. Swapped existing Netlify site onto the new repo, preserving site ID, custom domain, env vars, and deploy history.
+- During the repo swap, corrected the Netlify UI publish directory from `public/` to `dist` to match `netlify.toml`.
+- Confirmed `NODE_VERSION=22` does not need a Netlify UI env var — it is already pinned in `netlify.toml`.
+- No tracked files were modified; working tree was clean at commit `0c65bbe` for the entire session. All changes were git remote state and Netlify dashboard state only.
+- Site confirmed live on Netlify under the new repo link.
 
 ## Next session
-No engineering work is queued. Site is production-ready with one real article (`cortex-agents`) and an empty-state projects section. Next move is content: either (1) write a real project to replace the `mcp-snowflake` placeholder — flip `draft: false` or delete `src/content/projects/mcp-snowflake.md` and add a real file, or (2) write a new article. Run `/start-session` and ask Matt what he wants to tackle. Optional pre-production items still outstanding: image delivery (webp + `<picture srcset>`), content-hash filenames to resolve immutable cache risk, WCAG contrast check on `--color-text-muted`.
+Matt flagged "a few other things" to fix before pushing to main (which will trigger a Netlify rebuild on the newly-linked repo). Run `/start-session`, ask Matt what those items are, implement them, commit, and `git push origin main`. Optional pre-production items still outstanding: image delivery (webp + `<picture srcset>`), content-hash filenames to resolve immutable cache risk, WCAG contrast check on `--color-text-muted`.
 
 ## Open questions
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
