@@ -9,7 +9,7 @@ draft: false
 
 *Originally written January 2026. Cortex Agents is an evolving space — Snowflake has since released a REST API for Cortex Agents that this guide does not cover.*
 
-In early 2025, while building a custom MCP server for multi-database natural language queries, an invitation to Snowflake's World Tour provided an opportunity to explore their semantic view architecture in a hands-on lab. Within weeks, discussions began at work about integrating [Cortex Agents](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents) into an ELT pipeline for client-facing analytics. Cortex Agents enable sophisticated orchestration across structured databases and unstructured document sources which is a capability that would require significant custom development otherwise. The technical analysis that followed these discussions found important architectural constraints and cost trade-offs that aren't immediately apparant from Snowflake's documentation.
+In early 2025, while building a custom MCP server for multi-database natural language queries, I was introduced to Snowflake's semantic view architecture at World Tour. Given how quickly AI was moving in private equity, the team soon began talking about integrating [Cortex Agents](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents) into an ELT pipeline for client-facing analytics. Cortex Agents enable sophisticated orchestration across structured databases and unstructured document sources which is a capability that would require significant custom development otherwise. The technical analysis that followed these discussions found important architectural constraints and cost trade-offs that aren't immediately apparant from Snowflake's documentation.
 
 This guide covers those findings: 
 1) When agents add value versus when simpler approaches work better
@@ -312,7 +312,7 @@ Cost efficiency follows from this separation. Direct LLM function calls for expr
 
 ## Appendix: Example Semantic View for Credit Holdings
 
-Below is a condensed semantic view for credit portfolio analytics, demonstrating SCD Type 2 handling, verified queries, and custom instructions. The full version which includes Credit and Portfolio dimension tables and additional verified queries is available in the [GitHub repository](https://github.com/yourusername/cortex-agents-reference).
+Below is a condensed semantic view for credit portfolio analytics, demonstrating SCD Type 2 handling, verified queries, and custom instructions. The full semantic view with Credit and Portfolio dimension tables and additional verified queries is beyond the scope of this article.
 
 ```yaml
 name: credit_holdings_analytics
@@ -422,5 +422,3 @@ custom_instructions: |
 ```
 
 ---
-
-*For the complete semantic view with all dimension tables (Credit, Portfolio), additional verified queries, and implementation notes, see the companion GitHub repository.*
