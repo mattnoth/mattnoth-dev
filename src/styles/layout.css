@@ -3,6 +3,10 @@
     min-block-size: 100dvh;
     display: grid;
     grid-template-rows: auto 1fr auto;
+    /* Without an explicit column, the implicit track is minmax(auto, auto) which
+       expands to fit children — wide <pre>/<table> inside main blow out the page.
+       minmax(0, 1fr) caps the track at available viewport width. */
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .container {
@@ -70,9 +74,14 @@
 
   /* Hero section */
   .hero {
-    /* top: 2xl (main's padding-block-start is now md, so total header→eyebrow = md+2xl) */
-    /* bottom: xl (section's padding-block-start 2xl follows, so border→h2 = xl+2xl) */
-    padding-block: var(--space-2xl) var(--space-xl);
+    /* top: xl at mobile (md+xl total from header), 2xl at wide (md+2xl) */
+    /* bottom: xl throughout (section's own 2xl block-start carries the gap below) */
+    padding-block: var(--space-xl) var(--space-xl);
+
+    @media (min-width: 48rem) {
+      padding-block-start: var(--space-2xl);
+    }
+
     border-block-end: 0.0625rem solid var(--color-border);
 
     & .hero__eyebrow {
@@ -100,6 +109,46 @@
       flex-wrap: wrap;
       gap: var(--space-sm);
       align-items: center;
+    }
+  }
+
+  /* About section — sits between .hero and first .section (Recent Articles).
+     Narrow (stacked): md padding — photo sits directly above short text block,
+     xl would read as excess vertical air around thin content.
+     Wide (grid): xl padding — symmetric with hero's xl bottom, gives the
+     two-column layout room to breathe without double-stacking a wider gap. */
+  .about {
+    container-type: inline-size;
+    container-name: about;
+    padding-block: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+
+    @container about (min-width: 48rem) {
+      padding-block: var(--space-xl);
+      display: grid;
+      grid-template-columns: minmax(16rem, 1fr) 1.5fr;
+      gap: var(--space-2xl);
+      align-items: center;
+    }
+
+    & .about__photo {
+      inline-size: 100%;
+      block-size: auto;
+      border-radius: var(--radius-lg);
+      display: block;
+    }
+
+    & .about__text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      max-inline-size: 55ch;
+
+      & p {
+        margin: 0;
+      }
     }
   }
 

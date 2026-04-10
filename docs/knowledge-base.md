@@ -216,3 +216,13 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-09
 **Context:** Phase 5 `content-specialist` wrote ~1800 words of authentic-sounding prose for articles and projects. The prose was good, which is why the rule wasn't caught at the time.
 **Learning:** "It reads well" is not an argument for keeping Claude-authored first-person content in `src/content/`. Technical learnings Claude discovers during a session belong in `docs/knowledge-base.md` (Claude-owned), not in `src/content/` (Matt-owned). Scaffolding should use lorem ipsum or obviously-templated placeholders, never authentic-sounding prose. The new memory `feedback_no_ghostwriting.md` enforces this going forward.
+
+### `display: grid` on `body` without explicit `grid-template-columns` causes child overflow
+**Date:** 2026-04-10
+**Context:** Body was set to `display: grid` in Phase 3 for layout purposes but without `grid-template-columns`. This was latent until real long-line content (wide code blocks, tables) landed in `cortex-agents.md` and caused the page to overflow horizontally.
+**Learning:** Any `display: grid` container that lacks explicit `grid-template-columns` will create an implicit `auto`-sized single column that can expand past the viewport. Fix: add `grid-template-columns: minmax(0, 1fr)`. The `minmax(0, ...)` is the key — plain `1fr` alone does not constrain overflow because `1fr` resolves to the free space after content, not the available viewport space.
+
+### Scrollable-island idiom for wide `<table>` in prose
+**Date:** 2026-04-10
+**Context:** Cortex Agents article has a wide comparison table that overflowed the prose column on narrow viewports.
+**Learning:** Wrapping a `<table>` in a div with `overflow-x: auto` is common but requires an extra DOM node and a class. A simpler CSS-only alternative that matches the existing `<pre>` pattern: `.prose table { display: block; overflow-x: auto; }`. Setting `display: block` makes the table scrollable without a wrapper element. The tradeoff is that `display: block` removes table-specific formatting semantics for accessibility — acceptable here because the table remains readable; for screen-reader-critical tables, keep the native `display: table` and use a wrapper div.

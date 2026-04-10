@@ -9,17 +9,17 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-09 (real content landing + deploy prep)
-- Added required frontmatter to Matt's real Cortex Agents article; renamed `src/content/articles/cortext-agents.md` → `src/content/articles/cortex-agents.md` (typo fix); updated frontmatter slug to match.
-- Stripped duplicate leading `# heading` + italic subtitle + `---` rule from `cortex-agents.md` — template already renders `<h1>{{page_title}}</h1>`.
-- Added a dry italic editor's-note addendum at top of `cortex-agents.md`: notes original January 2026 writing date and that Snowflake's REST API for Cortex Agents is not covered. Kept `date: 2026-04-09` as publish date.
-- Deleted three Claude-ghostwritten content files: `src/content/articles/building-this-site.md`, `src/content/articles/modern-css-is-amazing.md`, `src/content/projects/context-base.md`. Learnings from those articles already live in `docs/knowledge-base.md`.
-- Tightened between-section vertical rhythm on home page: added `.section + .section { padding-block-start: var(--space-xl) }` nested rule in `src/styles/layout.css` (~line 26). Adjacent-sibling selector ensures only space *between* sections collapses, not the first or last.
-- Made cards fully clickable via the stretched `::after` overlay pattern in `src/styles/components.css`: `.card` gets `position: relative`; h2/h3 anchor gets `::after { content: ""; position: absolute; inset: 0; border-radius: inherit }`; `.card .links` gets `position: relative; z-index: 1` to escape the overlay. No new classes, no template changes; `build/lint-classes.ts` reports "34 HTML classes / 49 CSS classes in sync".
-- Saved two new memories under `~/.claude/projects/-Users-mnoth-source-mattnoth-dev/memory/`: `feedback_no_ghostwriting.md` and `project_site_positioning.md`; indexed in `MEMORY.md`.
+## Last session — 2026-04-10 (about section, mobile polish, table styles, overflow fix)
+- Added about section to home page (`src/templates/home.html`): beach photo left / bio text right on wide viewports, stacked on mobile via container query. Three new BEM classes: `.about`, `.about__photo`, `.about__text`.
+- Wired Matt's authored bio copy (C#/.NET, ELT pipelines, MCP/multi-agent) and moodsmith music link into the about section. Used Matt's writing directly.
+- Implemented responsive layout for `.about` in `src/styles/layout.css` using container query (`container-type: inline-size`) — consistent with CLAUDE.md rule of container queries for component-scoped responsive, media queries for page-level layout.
+- Tightened mobile vertical padding: `.about` uses `--space-md` base promoted to `--space-xl` at wide; hero `padding-block-start` drops from `2xl` to `xl` on mobile.
+- Fixed article page horizontal overflow bug (`src/styles/layout.css`): added `grid-template-columns: minmax(0, 1fr)` to `body` grid — corrects the root cause (implicit auto grid track) rather than masking with `overflow: hidden` on a child.
+- Added `.prose table` styles to `src/styles/typography.css`: scrollable-island idiom (`display: block; overflow-x: auto`), borders, zebra rows — handles wide tables in the Cortex Agents article.
+- Used `matt-beach-jpg-smaller.jpg` (347KB) over `matt-beach.png` (651KB) for the about photo.
 
 ## Next session
-Matt does the browser-review pass at `localhost:3000` (`npm run dev`): confirm card-click behavior works end-to-end (including that Live/GitHub buttons on project cards still work independently), confirm tightened section spacing reads right, and decide the fate of `src/content/projects/mcp-snowflake.md` (delete body / delete entry / rewrite later). After that, deploy to Netlify via push.
+Continue post-Phase 6 polish. Candidates: (1) optimize image delivery — convert `matt-beach-jpg-smaller.jpg` to webp and add `srcset` / `<picture>` in `src/templates/home.html`; (2) decide the fate of `src/content/projects/mcp-snowflake.md` (ghostwritten prose; options: delete body, delete entry, rewrite later); (3) decide presentation of Projects page with ~0–1 real entries; (4) address immutable cache / content-hash issue in `netlify.toml` before treating the site as production-ready.
 
 ## Open questions
 - `src/content/projects/mcp-snowflake.md` has Claude-ghostwritten prose in the body (same pattern as deleted articles). Options: (A) delete body, keep frontmatter + title only (needs a template or fallback tweak since `project.html` expects a body), (B) delete the project entirely, (C) leave it and rewrite later. Decision needed before deploy.
@@ -32,6 +32,7 @@ Matt does the browser-review pass at `localhost:3000` (`npm run dev`): confirm c
 - `theme-toggle.ts` uses `html.style.setProperty('transition', 'none')` + rAF instead of `classList.add/remove('.no-transition')`. Should migrate for consistency; would let `.no-transition` be removed from the lint allowlist.
 - Carousel infrastructure (`.carousel-wrapper`, `.carousel-track`, `.carousel-slide`, `src/ts/modules/carousel.ts`) is dormant — no template uses `[data-module="carousel"]`. Decision needed: keep as ready-to-use OR strip as YAGNI. Same question for `.stagger-1..4` animation delay utilities.
 - Port 3000 already-in-use on `npm run dev` fails serve but leaves the file watcher running, creating two writers to `dist/`. Not fixed; noted for future session.
+- `src/assets/images/matt-beach.png` (651KB original) still ships to dist. Not needed since `matt-beach-jpg-smaller.jpg` is in use. Safe to delete if no other consumer references the PNG.
 
 ## Blockers
 - (none)

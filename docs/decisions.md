@@ -190,3 +190,18 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** Home page has "All articles →" and "All projects →" trailing links below each card grid. Options: (a) add a new class to the template and lint allowlist, (b) use a structural selector.
 **Decision:** Style via `.section > p:last-child` in `src/styles/layout.css`. No template change, no new vocabulary for the class-lint to police.
 **Consequences:** Selector is structural — it targets any `<p>` that is the last direct child of `.section`. Adding a second trailing paragraph to a section would style both as "more" links. Acceptable for this site's template structure; would need a named class if sections ever get more complex trailing content.
+
+## 2026-04-10 — `minmax(0, 1fr)` on body grid rather than `overflow: hidden` on a child
+**Context:** Body grid was emitting an implicit auto column, causing horizontal page overflow when wide content (code blocks, tables) landed in the Cortex Agents article. Two remedies considered: fix the grid track sizing at root, or add `overflow: hidden` (or `overflow-x: clip`) on `<main>`.
+**Decision:** Add `grid-template-columns: minmax(0, 1fr)` to `body` in `src/styles/layout.css`. Addresses the root cause at the grid container rather than masking it at a descendant.
+**Consequences:** All direct children of the body grid are constrained to the viewport width by the `minmax(0, ...)` floor. Any future grid layout on `body` that omits columns should get the same treatment. `overflow: hidden` was rejected because it would clip sticky headers, tooltips, or any position-absolute elements that intentionally extend beyond the main column.
+
+## 2026-04-10 — Smaller JPG over full PNG for about photo
+**Context:** Two versions of the beach photo existed in `src/assets/images/`: `matt-beach.png` (651KB) and `matt-beach-jpg-smaller.jpg` (347KB). Same perceived quality; JPG is nearly half the size.
+**Decision:** Use `matt-beach-jpg-smaller.jpg` in `src/templates/home.html`. The PNG is left in place for now but is not referenced by any template.
+**Consequences:** PNG still ships to dist as a dead asset. Should be deleted (or the copy step scoped) in a future cleanup. If webp conversion is added (via `<picture srcset>`) the JPG becomes the fallback source.
+
+## 2026-04-10 — Container query for about section, media query for hero mobile padding
+**Context:** The about section is a self-contained component (photo + text) whose breakpoint should depend on its own available width, not the viewport. The hero padding tweak is a page-level spacing adjustment with no component boundary.
+**Decision:** Container query (`container-type: inline-size` on `.about`, `@container` for the wide layout) for the about section. Regular `@media` for the hero `padding-block-start` reduction on mobile.
+**Consequences:** Consistent with CLAUDE.md rule: container queries for component-scoped responsive, media queries for page-level layout. The about section could be dropped into a narrower column layout and the breakpoint would still trigger correctly.

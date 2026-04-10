@@ -183,5 +183,50 @@
       border-block-start: 0.0625rem solid color-mix(in oklch, var(--color-border) 80%, transparent);
       margin-block: var(--space-2xl);
     }
+
+    & table {
+      /* Markdown pipeline emits bare <table> with no wrapper div.
+         display: block turns the table into a scrollable island without
+         sacrificing internal table layout (inline-size: max-content preserves it). */
+      display: block;
+      overflow-x: auto;
+      inline-size: max-content;
+      max-inline-size: 100%;
+      margin-block: var(--space-lg);
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+
+      &::-webkit-scrollbar {
+        block-size: 0.375rem;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--color-border);
+        border-radius: var(--radius-full);
+      }
+    }
+
+    & th,
+    & td {
+      padding-inline: var(--space-sm);
+      padding-block: var(--space-xs);
+      border: 0.0625rem solid var(--color-border);
+      text-align: start;
+      vertical-align: top;
+    }
+
+    & th {
+      background-color: var(--color-code-bg);
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    & tr:nth-child(even) td {
+      background-color: color-mix(in oklch, var(--color-surface) 60%, transparent);
+    }
   }
 }
