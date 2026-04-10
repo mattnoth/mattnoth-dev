@@ -171,3 +171,28 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-09
 **Context:** `src/favicon.svg` uses `oklch(68% 0.18 55)` directly in SVG `fill` attributes.
 **Learning:** Chrome 111+, Safari 15.4+, Firefox 113+ all support `oklch()` in SVG. Safe for this project's evergreen target. If the SVG ever needs to render in a non-browser context (email clients, older rasterizers), swap the fill to `#d07628`.
+
+### Class vocabulary drift is a recurring pattern — mechanically backstopped by `build/lint-classes.ts`
+**Date:** 2026-04-09
+**Context:** Fourth incident of CSS/HTML class vocabulary drift this project (prior: Phase 3/4 reveal classes, Phase 5 title-slot reuse, Phase 3/6 card classes). Root cause each time: specialists reading only one side of the HTML-producer/CSS-consumer contract.
+**Learning:** `build/lint-classes.ts` now fails the build on any asymmetry in either direction (class in HTML not in CSS, or class in CSS not in HTML). The `JS_APPLIED` allowlist covers legitimately dormant infrastructure (carousel, stagger, no-transition). When the lint fires on a missing class or unused rule, fix the source — do not add to the allowlist to suppress real drift.
+
+### `build/pages.ts` template literals are a hidden HTML producer
+**Date:** 2026-04-09
+**Context:** Card HTML is generated via TypeScript template literals in `build/pages.ts`, not in `src/templates/`. Specialists reading only `src/templates/` to understand card markup will miss all class names emitted there.
+**Learning:** Any audit of HTML-emitted class names must include `build/pages.ts` in addition to `src/templates/`. The updated `CLAUDE.md` "Phase execution rules" pre-flight section explicitly names `pages.ts` as an HTML producer. The structural fix (splitting card HTML into templates) is deferred but would eliminate this dual-path confusion.
+
+### Briefs that allow "judgment calls" on guardrail allowlists need explicit anti-pattern wording
+**Date:** 2026-04-09
+**Context:** Build-specialist's initial implementation of `build/lint-classes.ts` added real drift cases (`.link*`, `.card--*`) to the `JS_APPLIED` allowlist rather than deleting the dead class names from the source, because the brief said "add false positives to JS_APPLIED with a comment."
+**Learning:** When delegating guardrail work, the brief must include: "do NOT add real drift to the allowlist — fix the source instead. The allowlist is only for infrastructure that is intentionally dormant." Without this, a well-intentioned specialist will take the path of least resistance and suppress the signal the guardrail was built to emit.
+
+### When a render bug is reported, check DOM presence before reading CSS cascade
+**Date:** 2026-04-09
+**Context:** Hamburger button was reported as potentially non-functional. Investigation went straight to reading all nav CSS rules, which took longer than needed.
+**Learning:** For any reported render bug, verify in order: (1) DOM node present in `dist/*.html`, (2) CSS rules present in `dist/main.css`, (3) viewport width / media query context. Five minutes grepping `dist/index.html` for the toggle node would have resolved the hamburger question before any CSS reading happened.
+
+### Port 3000 already-in-use leaves a zombie esbuild watcher
+**Date:** 2026-04-09
+**Context:** A second invocation of `npm run dev` when port 3000 is taken fails to bind the server but still starts the esbuild watch context.
+**Learning:** Two esbuild watch contexts writing concurrently to `dist/` can produce intermittent clobbering. Kill the first process before starting a second dev session. `lsof -i :3000` to find the PID.

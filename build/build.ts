@@ -6,6 +6,7 @@ import { parseContentDir } from "./markdown.ts";
 import { generateAllPages } from "./pages.ts";
 import { generateSitemap } from "./sitemap.ts";
 import { concatCss, copyAssets, DIST_DIR, SRC_DIR } from "./copy-assets.ts";
+import { lintClasses } from "./lint-classes.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -83,6 +84,12 @@ async function stepJs(minify: boolean, sourcemap: boolean): Promise<esbuild.Buil
   return result;
 }
 
+async function stepLintClasses(): Promise<void> {
+  const t = now();
+  await lintClasses();
+  console.log(`[build] lint-classes: ${ms(t)}`);
+}
+
 async function stepAssets(): Promise<void> {
   const t = now();
   await copyAssets();
@@ -99,6 +106,7 @@ async function runBuild(): Promise<void> {
 
   const { articles, projects } = await stepParseContent();
   await stepPages(articles, projects);
+  await stepLintClasses();
   await stepSitemap(articles, projects);
   await stepCss();
   await stepJs(true, true);

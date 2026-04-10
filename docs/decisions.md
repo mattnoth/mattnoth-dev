@@ -150,3 +150,23 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** Phase 6 reviewer flagged a heading-hierarchy bug: home page emits `h2` section headings and `h2` card headings at the same level — screen readers see a flat list with no nesting. Options were: (a) flatten all section `h2`s to `<p>` labels, or (b) parameterize the card heading level.
 **Decision:** `articleCard` and `projectCard` in `build/pages.ts` accept a `HeadingLevel` parameter. Home page passes `'h3'` (cards nest under section `h2`); list pages pass `'h2'` (cards nest under page `h1`). All `.map()` call sites converted to explicit arrow functions to avoid the positional-argument footgun.
 **Consequences:** Adding a new call site for either card function requires explicitly choosing a heading level — no silent default. Heading semantics are now correct on both home and list pages without touching templates.
+
+## 2026-04-09 — Card CSS rewritten to match HTML, not HTML to match CSS
+**Context:** Post-Phase 6 card layout was broken. `components.css` defined `.card__body`, `.card__title`, `.card__description`, `.card__tags`, `.card__image`, `.card__meta`, and a full `.project-card` block. The HTML emitted by `build/pages.ts` used `<header>`, `<p>`, `<div class="tags">` as direct children of `.card` — no BEM child classes.
+**Decision:** Rewrote card CSS rules to target the actual emitted HTML structure (`.card header`, `.card p`, `.card .tags`). Deleted all BEM child-class selectors and the `.project-card` block entirely. Did not change the HTML to match the BEM vocabulary.
+**Consequences:** BEM child-class vocabulary for cards is gone. The HTML producer (`build/pages.ts` template literals) is the de-facto contract, per CLAUDE.md preference for styling what ships. Future card styling must use the element-selector or modifier-class pattern. The `build/lint-classes.ts` step will catch any future drift immediately.
+
+## 2026-04-09 — Class-lint fails on both directions of drift, not just missing-in-CSS
+**Context:** The card-class drift bug was in the unused-in-HTML direction (CSS had classes that no HTML emitted). A lint that only checked "class in HTML but not in CSS" would have missed it entirely.
+**Decision:** `build/lint-classes.ts` fails on asymmetry in BOTH directions: (1) class emitted by HTML not found in CSS, and (2) CSS class selector not found in any emitted HTML. The `JS_APPLIED` allowlist covers intentionally dormant infrastructure.
+**Consequences:** CSS authors cannot add new rules without a corresponding HTML consumer — or an explicit allowlist entry. This is intentional: silent dead CSS was the root cause of this session's bug. Allowlist entries for dormant infrastructure require a comment naming why they are dormant.
+
+## 2026-04-09 — `.section` as flex column with single gap token for section rhythm
+**Context:** Home page section rhythm (h2 → cards grid → trailing "more →" link) had been managed with per-element margins. Inconsistent spacing; required multiple rules to adjust.
+**Decision:** `.section` in `src/styles/layout.css` is `display: flex; flex-direction: column; gap: var(--space-lg)`. Single gap token controls all spacing between direct children.
+**Consequences:** Section rhythm is one token. Changing `--space-lg` or the section gap affects h2→grid and grid→trailing-link simultaneously. Adding a third direct child (e.g. a filter bar) automatically inherits the gap. Overriding spacing on individual children requires a scoped margin that explains why it's special.
+
+## 2026-04-09 — Trailing "more →" links styled via `.section > p:last-child`, no new class
+**Context:** Home page has "All articles →" and "All projects →" trailing links below each card grid. Options: (a) add a new class to the template and lint allowlist, (b) use a structural selector.
+**Decision:** Style via `.section > p:last-child` in `src/styles/layout.css`. No template change, no new vocabulary for the class-lint to police.
+**Consequences:** Selector is structural — it targets any `<p>` that is the last direct child of `.section`. Adding a second trailing paragraph to a section would style both as "more" links. Acceptable for this site's template structure; would need a named class if sections ever get more complex trailing content.

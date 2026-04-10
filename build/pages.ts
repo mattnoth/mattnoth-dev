@@ -20,7 +20,7 @@ type HeadingLevel = 'h2' | 'h3';
 function articleCard(item: ParsedContent<ArticleMeta>, level: HeadingLevel = 'h2'): string {
   const { title, slug, date, description, tags } = item.meta;
   const tagHtml = tags.map((t) => `<span class="tag">${t}</span>`).join("");
-  return `<article class="card card--article">
+  return `<article class="card">
   <header>
     <${level}><a href="/articles/${slug}/">${title}</a></${level}>
     <time datetime="${date}">${date}</time>
@@ -35,12 +35,12 @@ function projectCard(item: ParsedContent<ProjectMeta>, level: HeadingLevel = 'h2
   const { title, slug, description, tech, url, github } = item.meta;
   const techHtml = tech.map((t) => `<span class="tech">${t}</span>`).join("");
   const links = [
-    url ? `<a href="${url}" class="link link--live">Live</a>` : "",
-    github ? `<a href="${github}" class="link link--github">GitHub</a>` : "",
+    url ? `<a href="${url}">Live</a>` : "",
+    github ? `<a href="${github}">GitHub</a>` : "",
   ]
     .filter(Boolean)
     .join(" ");
-  return `<article class="card card--project">
+  return `<article class="card">
   <${level}><a href="/projects/${slug}/">${title}</a></${level}>
   <p>${description}</p>
   <div class="tech-stack">${techHtml}</div>
@@ -140,8 +140,8 @@ export async function generateAllPages(
     const { title, slug, description, tech, url, github } = item.meta;
     const techHtml = tech.map((t) => `<span class="tech">${t}</span>`).join("");
     const links = [
-      url ? `<a href="${url}" class="link link--live">Live</a>` : "",
-      github ? `<a href="${github}" class="link link--github">GitHub</a>` : "",
+      url ? `<a href="${url}">Live</a>` : "",
+      github ? `<a href="${github}">GitHub</a>` : "",
     ]
       .filter(Boolean)
       .join(" ");

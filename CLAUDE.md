@@ -100,12 +100,16 @@ The `reviewer` subagent is read-only — it runs builds, checks output, reports 
 The main agent is responsible for orchestration before delegation. Before the first specialist delegation of any phase:
 
 1. **Vocabulary reconciliation.** Check `docs/progress.md` open questions for unresolved drift in shared vocabulary (CSS class names, `data-*` attributes, slot names, module keys). If drift exists and the current phase will use that vocabulary, reconcile it as the **first** delegation of the phase — not after templates or modules trip over it.
-2. **Slot-contract pre-flight.** For any phase that touches templates, read both sides of the slot contract: the template spec (what slots the template will reference) **and** the current slot producer (usually `build/pages.ts`). Produce a written slot-gap list. Missing slots become a `build-specialist` delegation that runs before or in parallel with template work, not after.
+2. **Slot-and-class contract pre-flight.** For any phase that touches templates, shared components, or component styling, read BOTH sides of every contract before delegating:
+   - **Slot contract.** The template spec (what slots the template will reference) **and** the current slot producer (usually `build/pages.ts`). Produce a written slot-gap list.
+   - **Class contract.** The HTML producer (templates in `src/templates/` AND any HTML emitted by template literals in `build/pages.ts`) **and** the CSS that styles it (`src/styles/*.css`). Enumerate exactly which classes the HTML emits, then verify each one is defined in CSS — and flag any CSS class selectors that target classes the HTML never emits. Produce a written class-gap list.
+
+   Missing slots or class gaps become delegations (usually to `build-specialist` or `css-specialist`) that run **before or in parallel with** the work that depends on them, not after. This rule exists because vocabulary drift has bitten this project multiple times — see `docs/knowledge-base.md` (Phase 3/4 reveal classes, Phase 5 slot reuse, Phase 3/6 card classes). The `build/lint-classes.ts` step in the build pipeline is the mechanical backstop; this rule is the human-scale prevention.
 3. **Dependency graph.** Write a short dependency graph naming the specialists involved and which deliverables block which. Commit to the ordering before the first delegation. If the graph is wrong, that's visible immediately — if there's no graph, problems only surface in the reviewer audit.
 
 Delegation constraints:
 
-- **CSS class constraint.** Any brief to `content-specialist` or any template-writing work must include: "Use only CSS classes already defined in `src/styles/`. If you need a new class, flag it in your report for `css-specialist` follow-up — do not invent classes on the fly."
+- **CSS class constraint.** Any brief to `content-specialist` or any template-writing work (including template-literal HTML in `build/pages.ts`) must include: "Use only CSS classes already defined in `src/styles/`. If you need a new class, flag it in your report for `css-specialist` follow-up — do not invent classes on the fly." Conversely, any brief to `css-specialist` that introduces new classes must name the HTML producer that will consume them, and that producer must be updated in the same phase.
 
 ---
 

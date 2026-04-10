@@ -13,12 +13,46 @@
   }
 
   main {
-    padding-block: var(--space-2xl);
+    padding-block: var(--space-md);
   }
 
   /* Page-level section spacing */
   .section {
     padding-block: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+
+    /* Kill default paragraph margin — flex gap handles rhythm */
+    & > p:last-child {
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: 500;
+
+      & a {
+        color: var(--color-accent);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2xs);
+        padding-block: var(--space-2xs);
+        border-block-end: 0.0625rem solid transparent;
+        transition:
+          color var(--duration-fast) ease,
+          border-color var(--duration-fast) ease;
+
+        &:hover {
+          color: var(--color-accent-hover);
+          border-block-end-color: var(--color-accent);
+        }
+
+        &:focus-visible {
+          outline: 0.125rem solid var(--color-accent);
+          outline-offset: 0.25rem;
+          border-radius: var(--radius-sm);
+        }
+      }
+    }
   }
 
   /* Two-column grid that collapses to single on narrow viewports */
@@ -30,7 +64,9 @@
 
   /* Hero section */
   .hero {
-    padding-block: var(--space-3xl);
+    /* top: 2xl (main's padding-block-start is now md, so total header→eyebrow = md+2xl) */
+    /* bottom: xl (section's padding-block-start 2xl follows, so border→h2 = xl+2xl) */
+    padding-block: var(--space-2xl) var(--space-xl);
     border-block-end: 0.0625rem solid var(--color-border);
 
     & .hero__eyebrow {
