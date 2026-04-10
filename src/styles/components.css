@@ -402,8 +402,6 @@
   /* ── Article footer ──────────────────────────────────────────────── */
   .article-footer {
     margin-block-start: var(--space-2xl);
-    padding-block-start: var(--space-xl);
-    border-block-start: 0.0625rem solid var(--color-border);
   }
 
   /* ── Project header ──────────────────────────────────────────────── */
@@ -542,5 +540,14 @@
     .nav__controls button {
       transition: none;
     }
+  }
+
+  /* ── Empty state — shown when a project/article list is empty ────────── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-text-muted);
+    padding-block: var(--space-xl);
+    margin: 0;
   }
 }

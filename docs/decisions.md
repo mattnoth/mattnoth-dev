@@ -220,3 +220,18 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Context:** Header has three direct children with unequal widths: logo, nav links, controls (theme toggle + hamburger). `justify-content: space-between` was the prior flex layout. The nav links appeared visually off-center because logo and controls have different widths.
 **Decision:** At `@media (min-width: 48rem)`, switch `.site-header .container` to `display: grid; grid-template-columns: 1fr auto 1fr`. Apply `justify-self: start` to `.nav__logo` and `justify-self: end` to `.nav__controls`. Mobile layout (flex + hamburger) is unchanged.
 **Consequences:** True center alignment regardless of flanking widths. Grid is scoped to the desktop breakpoint so it does not affect mobile dropdown behavior. `align-items: center` from the flex base rule carries into the grid context — no duplication needed.
+
+## 2026-04-10 — Data-driven `SOCIAL_LINKS` array over hard-coded footer HTML
+**Context:** Matt wanted a "flag like projects" mechanism to add/remove social links without editing HTML. Prior implementation had hard-coded `<li>` elements in `src/templates/base.html`.
+**Decision:** Introduced `SocialLink` type, `SOCIAL_LINKS` array with `{ label, href, enabled }`, and `SOCIAL_LINKS_HTML` builder in `build/pages.ts`. `BASE_SLOTS` spread into every `generatePage` call so the `{{social_links}}` slot is available on all pages without per-page wiring. X is in the array with `enabled: false`; flipping one boolean re-enables it.
+**Consequences:** Adding a new social link is a one-line array append in `build/pages.ts`. Removing one is a boolean toggle. The footer template is now entirely driven by the array — hand-editing `base.html` to add links is wrong and will be overwritten. Any new page type added via `generatePage` automatically gets the footer links with no additional change.
+
+## 2026-04-10 — `empty-state` paragraph inside existing `.grid-auto` wrapper, not outside it
+**Context:** When no projects exist, the projects slot needed a fallback message. Two structural options: (a) render the `<p>` inside the `.grid-auto` wrapper and span it with `grid-column: 1 / -1`, or (b) restructure the template to move the grid wrapper inside the slot so the fallback is a sibling, not a child.
+**Decision:** Option (a): `EMPTY_PROJECTS_HTML` renders inside the existing wrapper; `.empty-state { grid-column: 1 / -1 }` handles layout with one CSS property.
+**Consequences:** No template restructuring required. The `.empty-state` rule is unconditionally in `components.css`; the lint step will catch it if the HTML producer ever stops emitting the class. Future non-project grid fallbacks can reuse the same class.
+
+## 2026-04-10 — `draft` filter reuses existing production-only mechanism from articles
+**Context:** Projects needed a `draft` flag matching the article behavior: visible in `npm run dev`, filtered out in production builds.
+**Decision:** Added `draft?: boolean` to `ProjectMeta` and `parseProjectMeta`. Reused the existing production-only filter at `build/markdown.ts:165-170` that already handled articles generically — no new filter logic written.
+**Consequences:** Draft projects are still processed and rendered in dev mode, so Matt can keep editing placeholder content. Production builds suppress them. When Matt flips `draft: false` on `mcp-snowflake.md` (or deletes the line), the project appears in production automatically — no build changes needed.

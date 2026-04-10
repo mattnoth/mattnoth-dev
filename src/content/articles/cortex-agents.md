@@ -420,5 +420,3 @@ custom_instructions: |
   - SELECT *
   - Joining more than 4 tables without approval
 ```
-
----

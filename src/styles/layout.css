@@ -81,8 +81,6 @@
       padding-block-start: var(--space-xl);
     }
 
-    border-block-end: 0.0625rem solid var(--color-border);
-
     & .hero__eyebrow {
       font-size: var(--text-sm);
       font-weight: 600;

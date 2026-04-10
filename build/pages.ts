@@ -8,6 +8,33 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const DIST_DIR = join(__dirname, "../dist");
 export const SITE_ORIGIN = "https://mattnoth.dev";
 
+type SocialLink = {
+  readonly label: string;
+  readonly href: string;
+  readonly enabled: boolean;
+};
+
+const SOCIAL_LINKS: readonly SocialLink[] = [
+  { label: "GitHub", href: "https://github.com/mattnoth", enabled: true },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/mattnoth/", enabled: true },
+  { label: "X", href: "https://x.com/mattnoth", enabled: false },
+] as const;
+
+const SOCIAL_LINKS_HTML = SOCIAL_LINKS
+  .filter((link) => link.enabled)
+  .map(
+    (link) =>
+      `<li><a href="${link.href}" rel="noopener noreferrer" target="_blank">${link.label}</a></li>`,
+  )
+  .join("\n            ");
+
+const BASE_SLOTS = {
+  social_links: SOCIAL_LINKS_HTML,
+} as const;
+
+const EMPTY_PROJECTS_HTML =
+  '<p class="empty-state"><em>This is a new site — projects will be added soon.</em></p>';
+
 async function writeHtml(relPath: string, html: string): Promise<void> {
   const fullPath = join(DIST_DIR, relPath);
   const dir = fullPath.replace(/\/[^/]+$/, "");
@@ -54,7 +81,7 @@ async function generatePage(
   outputPath: string,
   label: string,
 ): Promise<void> {
-  const html = await renderPage(templateName, slots);
+  const html = await renderPage(templateName, { ...BASE_SLOTS, ...slots });
   if (html === null) {
     console.log(`[pages] ${label}: template stub — skipping`);
     return;
@@ -82,7 +109,10 @@ export async function generateAllPages(
       description: "Matt's personal dev site — articles and projects.",
       page_url: `${SITE_ORIGIN}/`,
       recent_articles: recentArticles.map((a) => articleCard(a, 'h3')).join("\n"),
-      featured_projects: featuredProjects.map((p) => projectCard(p, 'h3')).join("\n"),
+      featured_projects:
+        featuredProjects.length > 0
+          ? featuredProjects.map((p) => projectCard(p, 'h3')).join("\n")
+          : EMPTY_PROJECTS_HTML,
     },
     "index.html",
     "home",
@@ -129,7 +159,10 @@ export async function generateAllPages(
       title: "Projects — Matt Noth",
       description: "Things I've built.",
       page_url: `${SITE_ORIGIN}/projects/`,
-      projects: projects.map((p) => projectCard(p, 'h2')).join("\n"),
+      projects:
+        projects.length > 0
+          ? projects.map((p) => projectCard(p, 'h2')).join("\n")
+          : EMPTY_PROJECTS_HTML,
     },
     "projects/index.html",
     "projects list",

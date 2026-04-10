@@ -4,7 +4,8 @@ slug: "mcp-snowflake"
 description: "A Model Context Protocol server that lets AI agents query Snowflake using natural language."
 tech: ["typescript", "snowflake", "mcp", "ai"]
 github: "https://github.com/mattnoth/mcp-snowflake"
-featured: true
+featured: false
+draft: true
 ---
 
 Getting useful answers out of a data warehouse usually requires someone who knows SQL, knows the schema, and knows where the interesting data actually lives. That's a lot of institutional knowledge gating access to information that should be broadly available.

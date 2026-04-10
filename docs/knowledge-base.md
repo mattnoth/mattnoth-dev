@@ -241,3 +241,23 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-10
 **Context:** Site header had logo (left) + nav (middle) + controls (right) as three flex children using `justify-content: space-between`. Logo and controls have different widths.
 **Learning:** `space-between` places equal gaps between items, not equal margins from the container edges. When the two flanking items are different widths, the middle item is visually off-center. The correct primitive for true center alignment with asymmetric flanks is CSS Grid: `grid-template-columns: 1fr auto 1fr`. The `1fr` tracks each absorb the remaining space equally, pinning the `auto` middle track to the container's true center regardless of flanking widths.
+
+### Parallel-agent mutations on the same file cause silent clobbering
+**Date:** 2026-04-10
+**Context:** The `draft` work was delegated such that `build-specialist` was told to temporarily add `draft: true` to `mcp-snowflake.md` for verification and then revert, while `content-specialist` was simultaneously adding `draft: true` as the real permanent edit. Build-specialist's revert clobbered content-specialist's change; the main agent had to hand-restore it.
+**Learning:** Never assign mutation rights on the same file to two parallel agents. If one agent needs to mutate a file for testing, the test must be in-memory (or in a temp copy) — not applied and then reverted on the real file. A single agent should own both the real edit and any verification that touches that file. This is the second file-collision incident this project has seen.
+
+### Empty-state `<p>` inside `.grid-auto` needs `grid-column: 1 / -1`
+**Date:** 2026-04-10
+**Context:** `EMPTY_PROJECTS_HTML` renders a `<p class="empty-state">` inside the `.grid-auto` wrapper when no projects exist.
+**Learning:** Without `grid-column: 1 / -1`, the paragraph lands in the first grid cell and renders as a runt-sized column fragment. Spanning all columns makes it read as a full-width message. Any single-item fallback content inside a multi-column grid needs this rule.
+
+### Dev server template cache can show raw `{{slot_name}}` literals after a template change
+**Date:** 2026-04-10
+**Context:** When coordinating the `{{social_links}}` slot addition to `src/templates/base.html`, an in-flight dev server running from before the template change would render the literal `{{social_links}}` string in the page.
+**Learning:** If you see an unsubstituted `{{slot_name}}` in a rendered page, first check whether the running dev server pre-dates the template edit — restart it before assuming a slot-substitution bug in `build/templates.ts`.
+
+### `build/lint-classes.ts` does not catch HTML classes missing from CSS
+**Date:** 2026-04-10
+**Context:** During parallel CSS + HTML delegation for the `.empty-state` class, the build could pass lint even if the CSS side had not yet landed.
+**Learning:** `build/lint-classes.ts` fails on CSS class selectors not found in HTML, but it does NOT fail on HTML classes not found in CSS — that direction of drift passes the build silently. When introducing a new class in a parallel delegation (HTML producer and CSS consumer in separate agents), verify both sides manually after merging rather than relying on the lint step alone.
