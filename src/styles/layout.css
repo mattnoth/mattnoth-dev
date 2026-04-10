@@ -23,6 +23,12 @@
     flex-direction: column;
     gap: var(--space-lg);
 
+    /* Tighten gap between consecutive sections to match hero→section rhythm:
+       prev pb (2xl) + this pt (xl) = 3 stops, same as hero's xl + section's 2xl. */
+    & + & {
+      padding-block-start: var(--space-xl);
+    }
+
     /* Kill default paragraph margin — flex gap handles rhythm */
     & > p:last-child {
       margin: 0;

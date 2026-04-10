@@ -161,6 +161,26 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** `build/lint-classes.ts` fails on asymmetry in BOTH directions: (1) class emitted by HTML not found in CSS, and (2) CSS class selector not found in any emitted HTML. The `JS_APPLIED` allowlist covers intentionally dormant infrastructure.
 **Consequences:** CSS authors cannot add new rules without a corresponding HTML consumer — or an explicit allowlist entry. This is intentional: silent dead CSS was the root cause of this session's bug. Allowlist entries for dormant infrastructure require a comment naming why they are dormant.
 
+## 2026-04-09 — `date` frontmatter field = publish date, not original writing date
+**Context:** `cortex-agents.md` was originally written in January 2026 but added to the site on 2026-04-09. Matt did not want to backdate the publish date or "embellish" the release date.
+**Decision:** Keep `date: 2026-04-09` as the canonical publish date. Add a plain-language editor's-note addendum in the article body noting original writing was January 2026.
+**Consequences:** The article card in listings shows "Apr 9, 2026" while the body says "originally written January 2026". Acknowledged inconsistency; the addendum handles the nuance. If the site later adds an `originally_written` frontmatter field for display, this article is the first candidate.
+
+## 2026-04-09 — Deleted ghostwritten articles/projects rather than drafting or rewriting
+**Context:** `building-this-site.md`, `modern-css-is-amazing.md`, and `context-base.md` were written by `content-specialist` in Phase 5 in Matt's first-person voice. Matt's feedback: the learnings they contained were Claude's, not Matt's.
+**Decision:** Delete all three files outright. The learnings already live in `docs/knowledge-base.md`. `context-base` additionally has no clean-room codebase to point at — only Matt's work version.
+**Consequences:** The site launches with one real article (`cortex-agents`) and a near-empty Projects section. Leaving them with `draft: true` was rejected because it keeps misattributed prose in the repo. One substantive real article fits the white-paper positioning better than one real + two ghostwritten fillers.
+
+## 2026-04-09 — Card clickability via stretched `::after` overlay, not wrapping `<a>`
+**Context:** Cards needed to be fully clickable surfaces. Wrapping the entire card in an `<a>` would create nested interactive elements (project cards have Live/GitHub links inside), which is invalid HTML.
+**Decision:** Title anchor gets a stretched `::after { content: ""; position: absolute; inset: 0; border-radius: inherit }` overlay. `.card` gets `position: relative`. Secondary interactive elements (`.card .links`) escape the overlay via `position: relative; z-index: 1`.
+**Consequences:** Keeps semantic HTML (single real anchor per card), accessibility (one title link announced by screen readers), and correct middle-click/right-click/copy-link behavior. Text-caret placement via single click on the card body is blocked — standard tradeoff of this pattern. No new CSS classes introduced; lint count unchanged at 34 HTML / 49 CSS.
+
+## 2026-04-09 — Section-spacing collapse via `.section + .section`, not global `padding-block` adjustment
+**Context:** Consecutive sections on the home page had too much vertical gap between them, but adjusting `.section { padding-block }` globally would have also shrunk the first section's top spacing (after the hero) and the last section's bottom spacing (before the footer).
+**Decision:** Add `.section + .section { padding-block-start: var(--space-xl) }` as a nested rule in `src/styles/layout.css`. Adjacent-sibling selector collapses only the space between sections, leaving first and last intact.
+**Consequences:** The selector is precise. Adding a non-`.section` element between two sections (e.g. a full-bleed band) would stop the collapse from applying — intentional. Future sections added to the home page automatically inherit the collapsed gap without any extra CSS.
+
 ## 2026-04-09 — `.section` as flex column with single gap token for section rhythm
 **Context:** Home page section rhythm (h2 → cards grid → trailing "more →" link) had been managed with per-element margins. Inconsistent spacing; required multiple rules to adjust.
 **Decision:** `.section` in `src/styles/layout.css` is `display: flex; flex-direction: column; gap: var(--space-lg)`. Single gap token controls all spacing between direct children.

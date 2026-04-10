@@ -196,3 +196,23 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-09
 **Context:** A second invocation of `npm run dev` when port 3000 is taken fails to bind the server but still starts the esbuild watch context.
 **Learning:** Two esbuild watch contexts writing concurrently to `dist/` can produce intermittent clobbering. Kill the first process before starting a second dev session. `lsof -i :3000` to find the PID.
+
+### Missing frontmatter is a hard build failure, not a warning
+**Date:** 2026-04-09
+**Context:** `build/markdown.ts` calls `requireString` for `title`, `slug`, `date`, and `description`; it throws on any missing field.
+**Learning:** When a new article drops into `src/content/articles/` without frontmatter, `npm run dev` dies with `[markdown] "path.md" missing required string field: title` and never starts. The symptom — dev server won't start after adding an article — does not obviously point at frontmatter. Fix is adding the frontmatter block; there is no graceful degradation.
+
+### The "card as link" overlay pattern blocks text-cursor placement via single click
+**Date:** 2026-04-09
+**Context:** `.card` uses a stretched `::after` overlay on the title anchor to make the entire card surface clickable.
+**Learning:** A single click on the card body cannot place a text caret — the overlay intercepts the pointer event. Click-and-drag to select text still works because browsers distinguish drag from click, but caret placement via single click does not. This is the standard tradeoff of the pattern and is almost always acceptable. If it ever becomes a problem, the escape hatch is `pointer-events: none` on the `::after` with `pointer-events: auto` on interactive sub-regions — but that gets complicated fast; do not reach for it speculatively.
+
+### Stretched `::after` overlays should inherit `border-radius` from the parent
+**Date:** 2026-04-09
+**Context:** Card clickability overlay in `src/styles/components.css`.
+**Learning:** Without `border-radius: inherit`, the invisible overlay has square corners while the card has rounded corners. This only matters if the overlay ever becomes visible (focus ring, debug background, etc.), but it is free to get right the first time. Pattern: `.card :is(h2, h3) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }`.
+
+### Ghostwritten prose is the main failure mode for the "no lorem ipsum" rule
+**Date:** 2026-04-09
+**Context:** Phase 5 `content-specialist` wrote ~1800 words of authentic-sounding prose for articles and projects. The prose was good, which is why the rule wasn't caught at the time.
+**Learning:** "It reads well" is not an argument for keeping Claude-authored first-person content in `src/content/`. Technical learnings Claude discovers during a session belong in `docs/knowledge-base.md` (Claude-owned), not in `src/content/` (Matt-owned). Scaffolding should use lorem ipsum or obviously-templated placeholders, never authentic-sounding prose. The new memory `feedback_no_ghostwriting.md` enforces this going forward.
