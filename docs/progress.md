@@ -9,16 +9,14 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-10 (GitHub remote + Netlify repo swap)
-- Linked local repo to new GitHub remote at `https://github.com/mattnoth/mattnoth-dev.git`; pushed `main` with upstream tracking (`git push -u origin main`).
-- Walked through Netlify's "Link to a different repository" flow under Site configuration → Build & deploy → Continuous deployment → Manage repository. Swapped existing Netlify site onto the new repo, preserving site ID, custom domain, env vars, and deploy history.
-- During the repo swap, corrected the Netlify UI publish directory from `public/` to `dist` to match `netlify.toml`.
-- Confirmed `NODE_VERSION=22` does not need a Netlify UI env var — it is already pinned in `netlify.toml`.
-- No tracked files were modified; working tree was clean at commit `0c65bbe` for the entire session. All changes were git remote state and Netlify dashboard state only.
-- Site confirmed live on Netlify under the new repo link.
+## Last session — 2026-04-10 (hero redesign exploration + photo/memory cleanup)
+- Explored replacing the beach photo with a new blazer portrait and moving to a right-hand hero column layout. Tabled — Matt decided to keep the beach photo.
+- Deleted `src/assets/images/matt-beach.png` (651KB, unused). The referenced file `matt-beach-jpg-smaller.jpg` remains.
+- Updated memory files `project_site_positioning.md` and `project_moodsmith.md` in `~/.claude/projects/-Users-mnoth-source-mattnoth-dev/memory/` to remove "different kinda guy" phrasing and other overclaiming personality framing. Memory files live outside the repo.
+- No code landed. Working tree change is the deleted PNG (unstaged at session end).
 
 ## Next session
-Matt flagged "a few other things" to fix before pushing to main (which will trigger a Netlify rebuild on the newly-linked repo). Run `/start-session`, ask Matt what those items are, implement them, commit, and `git push origin main`. Optional pre-production items still outstanding: image delivery (webp + `<picture srcset>`), content-hash filenames to resolve immutable cache risk, WCAG contrast check on `--color-text-muted`.
+No specific items scoped. Matt has articles "less intensive than Cortex Agents" in progress and a CV page planned but not scoped. Run `/start-session` and ask what's next.
 
 ## Open questions
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
@@ -30,7 +28,7 @@ Matt flagged "a few other things" to fix before pushing to main (which will trig
 - `theme-toggle.ts` uses `html.style.setProperty('transition', 'none')` + rAF instead of `classList.add/remove('.no-transition')`. Should migrate for consistency; would let `.no-transition` be removed from the lint allowlist.
 - Carousel infrastructure (`.carousel-wrapper`, `.carousel-track`, `.carousel-slide`, `src/ts/modules/carousel.ts`) is dormant — no template uses `[data-module="carousel"]`. Decision needed: keep as ready-to-use OR strip as YAGNI. Same question for `.stagger-1..4` animation delay utilities.
 - Port 3000 already-in-use on `npm run dev` fails serve but leaves the file watcher running, creating two writers to `dist/`. Not fixed; noted for future session.
-- `src/assets/images/matt-beach.png` (651KB original) still ships to dist. Not needed since `matt-beach-jpg-smaller.jpg` is in use. Safe to delete if no other consumer references the PNG.
+- `matt-beach.png` deletion was not committed at session end — verify it is staged and commit in the next session if not already done.
 
 ## Blockers
 - (none)

@@ -241,6 +241,16 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Re-linked the existing Netlify site via the "Link to a different repository" UI flow. Did not create a new site.
 **Consequences:** Site ID, custom domain, env vars, and deploy history all preserved. Any future tooling that references the Netlify site ID (API calls, CLI deploys, webhooks) continues to work without reconfiguration. Creating a new site would have required re-binding the custom domain and recreating any env vars.
 
+## 2026-04-10 — Keep beach photo; hero redesign tabled
+**Context:** Matt was evaluating a new blazer portrait to replace the casual beach photo in the hero section. The alternative layout (portrait in right-hand hero column, about blurb pulled up) was prototyped but not landed.
+**Decision:** Keep `matt-beach-jpg-smaller.jpg`. The formal headshot lives on LinkedIn; the site can stay casual. Revisit only if Matt gets enough non-professional feedback about the photo.
+**Consequences:** The hero redesign work did not land — no branch was cut. If the redesign is revisited, the layout changes needed are: move photo into the hero right column, remove the standalone about section, and pull bio text into the hero. The blazer portrait files were cleaned from `src/assets/images/` by Matt during the session.
+
+## 2026-04-10 — Site voice described by what it is not, not by personality adjectives
+**Context:** Memory files had "different kinda guy" and similar personality-claim phrasing. Matt flagged both the original phrase and the first proposed replacement ("person with character") as overclaiming.
+**Decision:** Describe the site by what it is not: not Medium, not LinkedIn, not corporate, not ghost-written. No personality adjectives.
+**Consequences:** Any future memory or brief that attempts to describe the site's "vibe" should use the negative-definition framing. This applies to memory files and any briefs written to specialists — do not reach for adjectives to fill the void.
+
 ## 2026-04-10 — `netlify.toml` as sole source of truth for publish dir and Node version
 **Context:** During the Netlify repo swap, the UI publish-directory field showed `public/` while `netlify.toml` had `publish = "dist"`. Netlify also offers a UI field for Node version.
 **Decision:** Correct the UI publish-directory to `dist` to match `netlify.toml`, and rely on `netlify.toml` (`NODE_VERSION=22` is already pinned there) rather than setting a UI env var.

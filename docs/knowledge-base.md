@@ -272,6 +272,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** After swapping the repo, the Netlify UI showed `public/` as the publish directory while `netlify.toml` had `publish = "dist"`.
 **Learning:** `netlify.toml` wins at build time, but the UI field can still show a stale value from a previous site configuration. On any repo swap or new site link, verify the UI publish-directory field matches `netlify.toml`. Mismatches cause dashboard confusion and can mislead debugging if someone reads the UI rather than the toml.
 
+### One cringe phrase in memory does not warrant a four-paragraph replacement policy
+**Date:** 2026-04-10
+**Context:** Matt flagged "different kinda guy" in a memory file as cringe. The replacement edit was a disproportionate four-paragraph policy on vocabulary.
+**Learning:** When Matt rejects a phrase in memory, one short replacement line is enough. Writing an extended meta-policy about what to say instead is itself overclaiming. The accurate framing for this site is purely negative-definition: technical, first-person, not-corporate, not-Medium, not-LinkedIn. Do not reach for personality adjectives as a replacement.
+
 ### Netlify "Functions directory" default placeholder is not real config
 **Date:** 2026-04-10
 **Context:** During Netlify repo-swap review, the UI showed `netlify/functions` in the Functions directory field.
