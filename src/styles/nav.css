@@ -98,7 +98,7 @@
       display: flex;
     }
 
-    .nav__links {
+    .nav .nav__links {
       position: absolute;
       inset-block-start: 100%;
       inset-inline: 0;

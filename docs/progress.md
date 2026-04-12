@@ -9,14 +9,16 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-10 (hero redesign exploration + photo/memory cleanup)
-- Explored replacing the beach photo with a new blazer portrait and moving to a right-hand hero column layout. Tabled — Matt decided to keep the beach photo.
-- Deleted `src/assets/images/matt-beach.png` (651KB, unused). The referenced file `matt-beach-jpg-smaller.jpg` remains.
-- Updated memory files `project_site_positioning.md` and `project_moodsmith.md` in `~/.claude/projects/-Users-mnoth-source-mattnoth-dev/memory/` to remove "different kinda guy" phrasing and other overclaiming personality framing. Memory files live outside the repo.
-- No code landed. Working tree change is the deleted PNG (unstaged at session end).
+## Last session — 2026-04-12 (home page + footer vertical rhythm and mobile fixes)
+- Fixed draft-filter in `build/pages.ts`: projects list now hides drafts at all environments (not just prod), matching home-page behavior. Committed as `aad0072`.
+- Tightened mobile vertical rhythm on the home page hero → about stack (`src/styles/layout.css`): `.hero` top/bottom padding, `.hero__heading` bottom margin, `.hero__lead` bottom margin, `.about` top padding all reduced. Restored at `@media (min-width: 48rem)`.
+- Tightened desktop (≥48rem) rhythm symmetrically: `.hero` padding-block both sides `xl → lg`, `.hero__lead` bottom margin `xl → lg`, `.about` padding-block and gap narrowed. Mobile untouched.
+- Fixed CSS bleed: header hamburger-menu rules in `src/styles/nav.css` used bare `.nav__links` selector inside a viewport media query, silently hiding the footer social nav. Scoped to `.nav .nav__links` at `nav.css:101`.
+- Rearranged footer into a centered vertical stack at all viewports (`src/styles/layout.css` + `src/templates/base.html`): DOM order `social nav → email → copyright`. Removed `flex-wrap`, `justify-content: space-between`; added `flex-direction: column`, `align-items: center`, `text-align: center`.
+- `src/templates/home.html` had pre-existing uncommitted changes (hero/about reshuffle) at session start. Left unstaged — not part of this session's scope.
 
 ## Next session
-No specific items scoped. Matt has articles "less intensive than Cortex Agents" in progress and a CV page planned but not scoped. Run `/start-session` and ask what's next.
+No forced next step. Options: (1) resolve the `NODE_ENV`/draft-filter question (wire `NODE_ENV=production` into the `build` npm script, or drop the `isProd` gate in `build/markdown.ts`); (2) continue iterating on the uncommitted `src/templates/home.html` hero edits; (3) continue Phase 6 polish pass. Matt's call — run `/start-session`.
 
 ## Open questions
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
@@ -29,6 +31,9 @@ No specific items scoped. Matt has articles "less intensive than Cortex Agents" 
 - Carousel infrastructure (`.carousel-wrapper`, `.carousel-track`, `.carousel-slide`, `src/ts/modules/carousel.ts`) is dormant — no template uses `[data-module="carousel"]`. Decision needed: keep as ready-to-use OR strip as YAGNI. Same question for `.stagger-1..4` animation delay utilities.
 - Port 3000 already-in-use on `npm run dev` fails serve but leaves the file watcher running, creating two writers to `dist/`. Not fixed; noted for future session.
 - `matt-beach.png` deletion was not committed at session end — verify it is staged and commit in the next session if not already done.
+- `npm run build` does not set `NODE_ENV=production`, so the `isProd` gate in `build/markdown.ts` never fires. Decide: wire `NODE_ENV=production` into the `build` script, or drop the gate. Until resolved, the projects-list filter in `build/pages.ts` is the only reliable draft suppression mechanism.
+- Uncommitted `src/templates/home.html` (pre-existing hero/about reshuffle) is on disk but unstaged. Matt should decide whether to commit, drop, or continue iterating.
+- `main { padding-block: var(--space-md); }` in `src/styles/layout.css:20` contributes `space-md` above the hero on mobile. Deferred — affects every page including articles.
 
 ## Blockers
 - (none)

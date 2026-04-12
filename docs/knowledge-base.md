@@ -281,3 +281,13 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-10
 **Context:** During Netlify repo-swap review, the UI showed `netlify/functions` in the Functions directory field.
 **Learning:** This is a default placeholder in the Netlify UI, not user-entered configuration. Netlify silently ignores it when the folder is absent. Do not mistake placeholder text for a setting that needs to be cleared or matched in `netlify.toml`.
+
+### `npm run build` does not set `NODE_ENV=production`
+**Date:** 2026-04-12
+**Context:** `build/markdown.ts` has an `isProd` guard (line ~105) that filters draft content in production builds. The guard checks `process.env.NODE_ENV === 'production'`. The `build` script in `package.json` is `tsc --noEmit && tsx build/build.ts` — it does not set `NODE_ENV`.
+**Learning:** The `isProd` draft filter in `build/markdown.ts` never fires during `npm run build`. The workaround is a list-view filter in `build/pages.ts` that hides drafts unconditionally (both dev and prod). Until `NODE_ENV=production` is wired into the `build` script, do not rely on the `build/markdown.ts` gate for any environment-switching behavior. Any future feature that needs a prod/dev branch via `NODE_ENV` must either wire it through `package.json` or use a different signal.
+
+### Shared CSS class selectors across components with different parent structure cause silent bleed
+**Date:** 2026-04-12
+**Context:** The header nav and footer social nav both use `.nav__links`. The header has a parent `.nav` class; the footer does not. The header's mobile hamburger-menu CSS used a bare `.nav__links` selector inside a `@media (max-width: 48rem)` block, which caught the footer social nav and hid it on mobile.
+**Learning:** Viewport-scoped CSS is not a substitute for parent-class scoping. When two components share a class name but have different parent structure, bare selectors scoped only by media query will bleed across both. Rule of thumb: any component-internal rule that should not apply to elements matching the same class in sibling components must be scoped by a unique parent class (`nav .nav__links`, not just `.nav__links`). The `build/lint-classes.ts` step does not catch this — it only checks emission/definition symmetry, not scope correctness.
