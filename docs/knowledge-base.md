@@ -291,3 +291,28 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Date:** 2026-04-12
 **Context:** The header nav and footer social nav both use `.nav__links`. The header has a parent `.nav` class; the footer does not. The header's mobile hamburger-menu CSS used a bare `.nav__links` selector inside a `@media (max-width: 48rem)` block, which caught the footer social nav and hid it on mobile.
 **Learning:** Viewport-scoped CSS is not a substitute for parent-class scoping. When two components share a class name but have different parent structure, bare selectors scoped only by media query will bleed across both. Rule of thumb: any component-internal rule that should not apply to elements matching the same class in sibling components must be scoped by a unique parent class (`nav .nav__links`, not just `.nav__links`). The `build/lint-classes.ts` step does not catch this — it only checks emission/definition symmetry, not scope correctness.
+
+### "Never ghostwrite from scratch" applies to copy iterations, not just first drafts
+**Date:** 2026-04-12
+**Context:** Home page about paragraph 2 revision session. Matt provided a starting phrase and asked for adaptations. ~15 labeled options (A–O plus fragment cuts) were proposed before landing.
+**Learning:** When Matt provides a seed phrase and asks for variants, propose 2–4 labeled options with tradeoffs, let him pick, then iterate from his choice. Do not commit silently. The iteration volume in this session was fine — the lesson is the labeling and explicit-choice pattern that made it manageable.
+
+### "Was this in the code?" is a rejection signal, not a clarifying question
+**Date:** 2026-04-12
+**Context:** Hero email-address line was removed per handoff, then a variant was proposed for re-insertion. Matt asked whether the proposed line was already in the code.
+**Learning:** When Matt questions the provenance of a line during copy review, default interpretation is rejection, not curiosity. Stop and confirm before writing the edit. Misreading this as a neutral question resulted in an edit that had to be undone.
+
+### Abstract "layer" suffix noun adds vagueness even when the root noun is concrete
+**Date:** 2026-04-12
+**Context:** About paragraph 2 drafts. Phrases like "the AI infrastructure layer" and "the context layer" were proposed and some were rejected as vague.
+**Learning:** "Layer" as a standalone suffix noun does vague architectural work. "AI infrastructure for coding agents" is concrete; "the AI infrastructure layer" is not. Prefer "infrastructure for [specific thing]" over "the [adjective] [noun] layer" when the goal is concrete positioning.
+
+### Harness AI project brief vocabulary is reserved — do not use it in site about copy
+**Date:** 2026-04-12
+**Context:** About paragraph 2 drafting. The trio "structured domain knowledge, routing, trust-ranked context" is the core pitch of Matt's Harness AI project brief, which had not yet launched at the time of this session.
+**Learning:** That specific trio must not appear in the site's general about copy. Using it there would dilute the brief's impact when it launches. The about copy uses the softer "the context layer that ties them together" instead. When writing about Matt's AI infrastructure work in non-brief contexts, stay at one level of abstraction above the brief's specifics.
+
+### Stale file reads at session start can produce no-op delegations
+**Date:** 2026-04-12
+**Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".
+**Learning:** If a file's state does not match expectations mid-session, re-read it before delegating edits. The symptom was a delegated edit that produced no diff and no error. Prevention: run `git diff <file>` (or re-read the file) before assuming an edit is necessary. A no-diff result after an Edit tool call is a signal to check whether the change was already present, not whether the tool silently failed.
