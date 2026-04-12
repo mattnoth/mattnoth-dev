@@ -63,21 +63,7 @@
     --container-padding: clamp(1rem, 5vw, 3rem);
   }
 
-  /* Dark mode — system preference */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg:          oklch(14% 0.016 260);
-      --color-surface:     oklch(19% 0.018 260);
-      --color-text:        oklch(92% 0.012 80);
-      --color-text-muted:  oklch(62% 0.018 80);
-      --color-accent:      oklch(72% 0.18 58);
-      --color-accent-hover: oklch(78% 0.20 60);
-      --color-border:      oklch(28% 0.018 260);
-      --color-code-bg:     oklch(20% 0.020 260);
-    }
-  }
-
-  /* Manual dark override — wins over system preference via specificity on [data-theme] */
+  /* Manual dark override */
   [data-theme="dark"] {
     --color-bg:          oklch(14% 0.016 260);
     --color-surface:     oklch(19% 0.018 260);

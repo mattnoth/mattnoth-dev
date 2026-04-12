@@ -9,14 +9,15 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-12 (home page + footer copy revisions)
-- Removed "Email me @ matt.j.noth@gmail.com…" line from hero in `src/templates/home.html`. Hero now ends at "an actual human, and can prove it."
-- Rewrote about paragraph 2 in `src/templates/home.html` to: "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." Matt trimmed "That's meant" from the second sentence, leaving it as a gerund fragment.
-- Iterated ~15 labeled options (A–O plus fragment cuts) on about paragraph 2 wording before landing. Phrase "structured domain knowledge, routing, trust-ranked context" was reserved for Matt's Harness AI project brief and could not be used in about copy.
-- Matt rejected "Software engineer. Context engineer. Keyboard player." as a replacement hero tagline after seeing it on the site. Hero is lighter with no replacement tagline.
+## Last session — 2026-04-12 (light-mode hard default)
+- Made light mode the hard default for first-time visitors regardless of OS `prefers-color-scheme`.
+- Removed `@media (prefers-color-scheme: dark)` block from `src/styles/tokens.css` (was lines 66–78).
+- Trimmed `src/ts/modules/theme-toggle.ts`: deleted `getSystemTheme()`, deleted the `matchMedia` OS-change listener, changed fallback on mount to literal `'light'`.
+- Set explicit `data-theme="light"` on `<html>` in `src/templates/base.html` so the default is documented at the markup level.
+- Verified `npx tsc --noEmit` passes after TS edits.
 
 ## Next session
-Decide whether to split about paragraph 2 into two `<p>` tags (thesis sentence + gerund-list caption). Visual check in the dev server — about section would go from 3 blocks to 4. Then either delegate the split to `content-specialist` or close the question. Run `/start-session`.
+No specific task queued. Run `/start-session` — likely more polish-phase tweaks or article content for deploy.
 
 ## Open questions
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
@@ -30,7 +31,6 @@ Decide whether to split about paragraph 2 into two `<p>` tags (thesis sentence +
 - Port 3000 already-in-use on `npm run dev` fails serve but leaves the file watcher running, creating two writers to `dist/`. Not fixed; noted for future session.
 - `matt-beach.png` deletion was not committed at session end — verify it is staged and commit in the next session if not already done.
 - `npm run build` does not set `NODE_ENV=production`, so the `isProd` gate in `build/markdown.ts` never fires. Decide: wire `NODE_ENV=production` into the `build` script, or drop the gate. Until resolved, the projects-list filter in `build/pages.ts` is the only reliable draft suppression mechanism.
-- Split about paragraph 2 into two `<p>` tags (thesis + gerund-list caption)? Matt asked, main agent endorsed; not committed. 30-second decision next session — visual check in dev server first.
 - `main { padding-block: var(--space-md); }` in `src/styles/layout.css:20` contributes `space-md` above the hero on mobile. Deferred — affects every page including articles.
 
 ## Blockers

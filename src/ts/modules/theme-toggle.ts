@@ -2,10 +2,6 @@ import { on } from '../utils/dom';
 
 type Theme = 'light' | 'dark';
 
-function getSystemTheme(): Theme {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
 function getStoredTheme(): Theme | null {
   const stored = localStorage.getItem('theme');
   return stored === 'light' || stored === 'dark' ? stored : null;
@@ -36,7 +32,7 @@ export function mount(el: HTMLElement): void {
   const ac = new AbortController();
   const { signal } = ac;
 
-  const currentTheme = getStoredTheme() ?? getSystemTheme();
+  const currentTheme: Theme = getStoredTheme() ?? 'light';
   applyTheme(currentTheme, button);
 
   on(button, 'click', () => {
@@ -46,14 +42,4 @@ export function mount(el: HTMLElement): void {
     applyTheme(next, button);
     localStorage.setItem('theme', next);
   }, { signal });
-
-  // MediaQueryList uses its own event map, not HTMLElementEventMap, so we can't
-  // use the typed on() helper here. Register directly with the signal for cleanup.
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const mqHandler = (): void => {
-    if (!getStoredTheme()) {
-      applyTheme(getSystemTheme(), button);
-    }
-  };
-  mq.addEventListener('change', mqHandler, { signal });
 }

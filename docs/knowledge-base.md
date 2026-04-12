@@ -312,6 +312,16 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** About paragraph 2 drafting. The trio "structured domain knowledge, routing, trust-ranked context" is the core pitch of Matt's Harness AI project brief, which had not yet launched at the time of this session.
 **Learning:** That specific trio must not appear in the site's general about copy. Using it there would dilute the brief's impact when it launches. The about copy uses the softer "the context layer that ties them together" instead. When writing about Matt's AI infrastructure work in non-brief contexts, stay at one level of abstraction above the brief's specifics.
 
+### Theme toggle is now OS-preference-blind — re-adding the listener requires two edits
+**Date:** 2026-04-12
+**Context:** Light-mode hard-default session. Both the `@media (prefers-color-scheme: dark)` CSS block and the `matchMedia` JS listener were deleted, not just one.
+**Learning:** The theme toggle module only reads/writes `localStorage.theme`. If OS-preference-respecting behavior is ever re-added, two things must be restored together: `getSystemTheme()` in `theme-toggle.ts` AND the `matchMedia` change listener, AND the `@media` block in `tokens.css`. Missing any one of the three produces inconsistent behavior. The deletion was intentional — it is not an oversight in the TS file.
+
+### `[data-theme="light"]` CSS block now duplicates `:root` exactly — edit both if retuning light palette
+**Date:** 2026-04-12
+**Context:** After the light-mode hard-default change, the `:root` defaults and the `[data-theme="light"]` block are identical. The block was kept for symmetry with `[data-theme="dark"]` and to make the toggle palette diff readable.
+**Learning:** If you retune light-mode color tokens, you must update both `:root` and `[data-theme="light"]` in `src/styles/tokens.css`. Missing one produces a "looks slightly off on the second toggle click" bug that is hard to trace — the toggle switches to `[data-theme="dark"]` on first click and back to `[data-theme="light"]` on second, where the diverged `:root` values would reappear.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".

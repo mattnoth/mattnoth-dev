@@ -271,6 +271,11 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Remove the hero email line. Add it to the footer as a second `<p>` instead. No replacement tagline — hero ends at "an actual human, and can prove it."
 **Consequences:** The three-descriptor format is ruled out for the hero — it reads as a LinkedIn tagline in context. The footer email placement works as a sign-off rather than a first impression. If Matt later wants a tagline, it needs a different form; the adjective-list format is explicitly rejected.
 
+## 2026-04-12 — Light mode hard default; OS preference fully removed
+**Context:** Matt wanted light mode on first visit regardless of OS `prefers-color-scheme`. The prior behavior respects the OS signal on first visit and falls back to light only when no preference is set.
+**Decision:** Removed the `@media (prefers-color-scheme: dark)` block from `src/styles/tokens.css`, deleted `getSystemTheme()` and the `matchMedia` listener from `src/ts/modules/theme-toggle.ts`, and set `data-theme="light"` directly on `<html>` in `src/templates/base.html`. Both CSS and JS sides were cut — not just one.
+**Consequences:** First-time visitors always see light mode. `localStorage.theme` still persists the user's manual choice across visits. OS preference is completely ignored. Re-adding OS-respecting behavior requires edits to both `tokens.css` and `theme-toggle.ts` in tandem. The `[data-theme="light"]` CSS block now duplicates `:root` exactly; both must be updated if the light palette changes.
+
 ## 2026-04-12 — About paragraph 2 uses two-sentence structure (thesis + gerund expansion), not em-dash list
 **Context:** About paragraph 2 needed to describe Matt's current AI infrastructure work without burning Harness brief vocabulary. Two structural options debated: (a) "AI infrastructure for coding agents — engineering context, MCP servers, multi-agent workflows" (em-dash list), (b) "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." (two sentences).
 **Decision:** Option (b): thesis sentence + gerund-fragment expansion. Matt made a post-edit cut dropping "That's meant" from the start of sentence 2, making it a gerund fragment.
