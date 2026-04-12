@@ -152,7 +152,9 @@ export async function generateAllPages(
     );
   }
 
-  // Projects list
+  // Projects list — hide drafts here regardless of env so the empty
+  // state matches the home page when nothing is publish-ready yet.
+  const listedProjects = projects.filter((p) => p.meta.draft !== true);
   await generatePage(
     "project-list.html",
     {
@@ -160,8 +162,8 @@ export async function generateAllPages(
       description: "Things I've built.",
       page_url: `${SITE_ORIGIN}/projects/`,
       projects:
-        projects.length > 0
-          ? projects.map((p) => projectCard(p, 'h2')).join("\n")
+        listedProjects.length > 0
+          ? listedProjects.map((p) => projectCard(p, 'h2')).join("\n")
           : EMPTY_PROJECTS_HTML,
     },
     "projects/index.html",
