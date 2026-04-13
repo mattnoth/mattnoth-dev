@@ -143,6 +143,10 @@
       block-size: auto;
       border-radius: var(--radius-lg);
       display: block;
+
+      &[hidden] {
+        display: none;
+      }
     }
 
     & .about__text {
