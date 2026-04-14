@@ -7,9 +7,9 @@ description: "When to use Cortex Agents, when to skip them, and how to build a c
 draft: false
 ---
 
-*Originally written January 2026. Cortex Agents is an evolving space — Snowflake has since released a REST API for Cortex Agents that this guide does not cover.*
+*Originally written in 2025. Cortex Agents is an evolving space — Snowflake has since released a REST API for Cortex Agents that this guide does not cover.*
 
-In early 2025, while building a custom MCP server for multi-database natural language queries, I was introduced to Snowflake's semantic view architecture at World Tour. Given how quickly AI was moving in private equity, the team soon began talking about integrating [Cortex Agents](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents) into an ELT pipeline for client-facing analytics. Cortex Agents enable sophisticated orchestration across structured databases and unstructured document sources which is a capability that would require significant custom development otherwise. The technical analysis that followed these discussions found important architectural constraints and cost trade-offs that aren't immediately apparant from Snowflake's documentation.
+In early 2025, while building a custom MCP server for multi-database natural language queries, I was introduced to Snowflake's semantic view architecture at SF World Tour. Given how quickly AI was moving in private equity, the team soon began talking about integrating [Cortex Agents](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents) into an ELT pipeline for client-facing analytics. Cortex Agents enable sophisticated orchestration across structured databases and unstructured document sources which is a capability that would require significant custom development otherwise. The technical analysis that followed these discussions found important architectural constraints and cost trade-offs that aren't immediately apparant from Snowflake's documentation.
 
 This guide covers those findings: 
 1) When agents add value versus when simpler approaches work better

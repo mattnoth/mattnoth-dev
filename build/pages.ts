@@ -118,6 +118,18 @@ export async function generateAllPages(
     "home",
   );
 
+  // About page
+  await generatePage(
+    "about.html",
+    {
+      title: "About — Matt Noth",
+      description: "About Matt Noth.",
+      page_url: `${SITE_ORIGIN}/about/`,
+    },
+    "about/index.html",
+    "about",
+  );
+
   // Articles list
   await generatePage(
     "article-list.html",
