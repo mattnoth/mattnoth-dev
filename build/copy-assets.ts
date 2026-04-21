@@ -14,6 +14,7 @@ const CSS_LAYER_ORDER = [
   "layout.css",
   "nav.css",
   "components.css",
+  "missing-scientists.css",
   "animations.css",
 ] as const satisfies readonly string[];
 

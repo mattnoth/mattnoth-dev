@@ -7,6 +7,8 @@ const moduleRegistry = {
   'nav':          () => import('./modules/nav'),
   'scroll-reveal': () => import('./modules/scroll-reveal'),
   'carousel':     () => import('./modules/carousel'),
+  'ms-diagram':   () => import('./modules/ms-diagram'),
+  'ms-timeline':  () => import('./modules/ms-timeline'),
 } as const satisfies Record<string, () => Promise<{ mount: (el: HTMLElement) => void }>>;
 
 type ModuleName = keyof typeof moduleRegistry;

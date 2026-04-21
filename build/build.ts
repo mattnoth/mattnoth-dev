@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import * as esbuild from "esbuild";
 import { parseContentDir } from "./markdown.ts";
 import { generateAllPages } from "./pages.ts";
+import { generateMissingScientistsPages } from "./missing-scientists.ts";
 import { generateSitemap } from "./sitemap.ts";
 import { concatCss, copyAssets, DIST_DIR, SRC_DIR } from "./copy-assets.ts";
 import { lintClasses } from "./lint-classes.ts";
@@ -106,6 +107,7 @@ async function runBuild(): Promise<void> {
 
   const { articles, projects } = await stepParseContent();
   await stepPages(articles, projects);
+  await generateMissingScientistsPages();
   await stepLintClasses();
   await stepSitemap(articles, projects);
   await stepCss();
@@ -125,6 +127,7 @@ async function runDev(): Promise<void> {
   const { articles, projects } = await stepParseContent();
   await Promise.all([
     stepPages(articles, projects),
+    generateMissingScientistsPages(),
     stepCss(),
     stepAssets(),
   ]);

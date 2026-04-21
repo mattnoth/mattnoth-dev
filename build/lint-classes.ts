@@ -153,7 +153,11 @@ function difference<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): Set<T> {
 export async function lintClasses(): Promise<void> {
   const stylesDir = join(SRC_DIR, "styles");
   const templatesDir = join(SRC_DIR, "templates");
-  const pagesFile = join(__dirname, "pages.ts");
+  // Build scripts that emit HTML with class attributes (page generators)
+  const pageGenerators = [
+    join(__dirname, "pages.ts"),
+    join(__dirname, "missing-scientists.ts"),
+  ];
 
   // Collect files in parallel
   const [cssFiles, htmlFiles] = await Promise.all([
@@ -162,10 +166,10 @@ export async function lintClasses(): Promise<void> {
   ]);
 
   // Read all files in parallel
-  const [cssContents, htmlContents, pagesSource] = await Promise.all([
+  const [cssContents, htmlContents, generatorSources] = await Promise.all([
     Promise.all(cssFiles.map((f) => readFile(f, "utf-8"))),
     Promise.all(htmlFiles.map((f) => readFile(f, "utf-8"))),
-    readFile(pagesFile, "utf-8"),
+    Promise.all(pageGenerators.map((f) => readFile(f, "utf-8").catch(() => ""))),
   ]);
 
   // Build CSS class set
@@ -174,12 +178,14 @@ export async function lintClasses(): Promise<void> {
     cssClasses = union(cssClasses, extractCssClasses(src));
   }
 
-  // Build HTML-emitted class set from templates + pages.ts
+  // Build HTML-emitted class set from templates + page generators
   let htmlClasses = new Set<string>();
   for (const src of htmlContents) {
     htmlClasses = union(htmlClasses, extractHtmlClasses(src));
   }
-  htmlClasses = union(htmlClasses, extractPagesClasses(pagesSource));
+  for (const src of generatorSources) {
+    htmlClasses = union(htmlClasses, extractPagesClasses(src));
+  }
 
   // Compute gaps, excluding JS-applied / allowlisted classes from both sides
   const effectiveCss = difference(cssClasses, JS_APPLIED);
