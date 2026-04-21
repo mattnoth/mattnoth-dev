@@ -408,6 +408,37 @@
     }
   }
 
+  /* ── Source attribution (visible when source contains links) ─────── */
+  .ms-source-attr {
+    font-size: 0.8em;
+    color: var(--color-text-muted);
+
+    & a[href] {
+      color: oklch(42% 0.12 248);
+      text-decoration: underline;
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.15em;
+      text-decoration-color: color-mix(in oklch, oklch(42% 0.12 248) 40%, transparent);
+
+      &:hover {
+        color: oklch(35% 0.14 248);
+        text-decoration-color: oklch(35% 0.14 248);
+      }
+    }
+  }
+
+  [data-theme="dark"] .ms-source-attr {
+    & a[href] {
+      color: oklch(72% 0.1 248);
+      text-decoration-color: color-mix(in oklch, oklch(72% 0.1 248) 40%, transparent);
+
+      &:hover {
+        color: oklch(78% 0.12 248);
+        text-decoration-color: oklch(78% 0.12 248);
+      }
+    }
+  }
+
   /* ── Confidence labels ───────────────────────────────────────────── */
   .ms-confidence {
     display: inline-flex;

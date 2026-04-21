@@ -121,14 +121,18 @@ function applyGlossary(html: string, entries: GlossaryEntry[]): string {
 }
 
 /** Replace regex matches only in text content, not inside HTML tags or attributes. */
-function replaceInTextNodes(html: string, pattern: RegExp, replacement: string): string {
+function replaceInTextNodes(
+  html: string,
+  pattern: RegExp,
+  replacement: string | ((...args: string[]) => string),
+): string {
   // Split HTML into tag vs text segments
   const parts = html.split(/(<[^>]+>)/);
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]!;
     // Skip HTML tags (odd-indexed parts from the split, plus anything starting with <)
     if (part.startsWith("<")) continue;
-    parts[i] = part.replace(pattern, replacement);
+    parts[i] = part.replace(pattern, replacement as Parameters<typeof part.replace>[1]);
   }
   return parts.join("");
 }
@@ -168,20 +172,41 @@ function postProcess(html: string, glossary: GlossaryEntry[] = []): string {
   // Style tier + confidence annotations: [T1], [T1 (source), Confirmed], etc.
   // Tier badges link to the source section on the same page (e.g. #primary-sources).
   // Tooltip shows the tier description + specific source attribution.
+  // When the source text contains HTML links (from markdown link processing),
+  // the source is rendered visibly alongside the badge so users can click through.
   html = html.replace(
     /\[T([1-7])(?:\s*\(([^)]*)\))?(?:,?\s*(Confirmed|Reported|Alleged|Speculated))?\]/g,
     (_match, num: string, source: string | undefined, confidence: string | undefined) => {
-      const escapedSource = source ? source.replace(/"/g, "&quot;") : "";
       const desc = TIER_DESCRIPTIONS[num] ?? `Tier ${num}`;
-      const title = `${desc}${escapedSource ? ` — ${escapedSource}` : ""}`;
+      const hasLink = source?.includes("<a ");
+      // Strip HTML for the tooltip text
+      const cleanSource = source
+        ? source.replace(/<[^>]+>/g, "").trim().replace(/"/g, "&quot;")
+        : "";
+      const title = `${desc}${cleanSource ? ` — ${cleanSource}` : ""}`;
       const anchor = TIER_ANCHORS[num] ?? "#primary-sources";
+
       let result = `<a href="${anchor}" class="ms-tier-link"><span class="ms-tier" data-tier="${num}" title="${title}">T${num}</span></a>`;
+
+      // When source text contains clickable links, show it visibly
+      if (hasLink && source) {
+        result += ` <span class="ms-source-attr">(${source})</span>`;
+      }
+
       if (confidence) {
         result += ` <span class="ms-confidence" data-level="${confidence.toLowerCase()}">${confidence}</span>`;
       }
       return result;
     },
   );
+
+  // Style standalone (T1), (T2), etc. parenthetical tier references (common in tables).
+  // Only replace in text nodes to avoid matching inside HTML attributes or URLs.
+  html = replaceInTextNodes(html, /\(T([1-7])\)/g, (_match: string, num: string) => {
+    const desc = TIER_DESCRIPTIONS[num] ?? `Tier ${num}`;
+    const anchor = TIER_ANCHORS[num] ?? "#primary-sources";
+    return `(<a href="${anchor}" class="ms-tier-link"><span class="ms-tier" data-tier="${num}" title="${desc}">T${num}</span></a>)`;
+  });
 
   // Convert internal markdown file references to website URLs
   html = html.replace(/href="cases\/([^"]+)\.md"/g, `href="${BASE}/cases/$1/"`);
