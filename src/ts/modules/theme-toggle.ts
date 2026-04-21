@@ -32,7 +32,7 @@ export function mount(el: HTMLElement): void {
   const ac = new AbortController();
   const { signal } = ac;
 
-  const currentTheme: Theme = getStoredTheme() ?? 'light';
+  const currentTheme: Theme = getStoredTheme() ?? 'dark';
   applyTheme(currentTheme, button);
 
   on(button, 'click', () => {
