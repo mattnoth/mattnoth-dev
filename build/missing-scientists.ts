@@ -12,7 +12,7 @@ import { SITE_ORIGIN } from "./pages.ts";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const RESEARCH_DIR = process.env["MS_RESEARCH_DIR"]
-  ?? join(__dirname, "../../research-missing-scientists");
+  ?? join(__dirname, "../research-missing-scientists");
 const DIST_DIR = join(__dirname, "../dist");
 const BASE = "/unpublished/missing-scientists";
 

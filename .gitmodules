@@ -1,0 +1,3 @@
+[submodule "research-missing-scientists"]
+	path = research-missing-scientists
+	url = https://github.com/mattnoth/research-missing-scientist.git
