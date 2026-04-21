@@ -84,21 +84,98 @@ function generateCaseList(currentSlug?: string): string {
   </nav>`;
 }
 
+// ── Glossary ──────────────────────────────────────────────────────────
+
+interface GlossaryEntry { abbr: string; full: string }
+
+let glossaryEntries: GlossaryEntry[] | null = null;
+
+async function loadGlossary(): Promise<GlossaryEntry[]> {
+  if (glossaryEntries) return glossaryEntries;
+  try {
+    const raw = await readFile(join(RESEARCH_DIR, "data/glossary.json"), "utf-8");
+    const data = JSON.parse(raw) as { entries: GlossaryEntry[] };
+    // Sort longest-first so longer acronyms match before shorter substrings
+    glossaryEntries = data.entries.sort((a, b) => b.abbr.length - a.abbr.length);
+  } catch {
+    glossaryEntries = [];
+  }
+  return glossaryEntries;
+}
+
+function applyGlossary(html: string, entries: GlossaryEntry[]): string {
+  for (const { abbr, full } of entries) {
+    // Escape special regex characters in the abbreviation
+    const escaped = abbr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Match the abbreviation as a whole word, but NOT inside HTML tags or
+    // already-wrapped <abbr> elements. We use a negative lookbehind for
+    // tag context and only match text nodes.
+    const re = new RegExp(
+      `(?<![\\w/\\.">])${escaped}(?![\\w<])`,
+      "g",
+    );
+    // Replace only in text content (outside of HTML tags)
+    html = replaceInTextNodes(html, re, `<abbr title="${full.replace(/"/g, "&quot;")}">${abbr}</abbr>`);
+  }
+  return html;
+}
+
+/** Replace regex matches only in text content, not inside HTML tags or attributes. */
+function replaceInTextNodes(html: string, pattern: RegExp, replacement: string): string {
+  // Split HTML into tag vs text segments
+  const parts = html.split(/(<[^>]+>)/);
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]!;
+    // Skip HTML tags (odd-indexed parts from the split, plus anything starting with <)
+    if (part.startsWith("<")) continue;
+    parts[i] = part.replace(pattern, replacement);
+  }
+  return parts.join("");
+}
+
+// ── Tier descriptions and source-section anchors ─────────────────────
+
+const TIER_DESCRIPTIONS: Record<string, string> = {
+  "1": "Primary sources — law-enforcement releases, court filings, official statements",
+  "2": "Secondary reporting — mainstream news with named sources",
+  "3": "Tertiary / aggregator — Wikipedia, roundups citing other outlets",
+  "4": "Named expert commentary — on-the-record statements from identified experts",
+  "5": "Secondary reporting relying on anonymous sources",
+  "6": "Independent commentary — Substack, YouTube, podcasts, social media",
+  "7": "Foreign state-affiliated press",
+};
+
+/** Map tier number to the heading anchor on the same page where sources are listed. */
+const TIER_ANCHORS: Record<string, string> = {
+  "1": "#primary-sources",
+  "2": "#secondary-sources",
+  "3": "#secondary-sources",
+  "4": "#named-expert-commentary",
+  "5": "#secondary-sources",
+  "6": "#secondary-sources",
+  "7": "#foreign-coverage",
+};
+
 // ── Markdown processing ───────────────────────────────────────────────
 
 async function readMarkdown(relativePath: string): Promise<string> {
   const raw = await readFile(join(RESEARCH_DIR, relativePath), "utf-8");
-  return postProcess(String(await marked(raw)));
+  const glossary = await loadGlossary();
+  return postProcess(String(await marked(raw)), glossary);
 }
 
-function postProcess(html: string): string {
+function postProcess(html: string, glossary: GlossaryEntry[] = []): string {
   // Style tier + confidence annotations: [T1], [T1 (source), Confirmed], etc.
+  // Tier badges link to the source section on the same page (e.g. #primary-sources).
+  // Tooltip shows the tier description + specific source attribution.
   html = html.replace(
     /\[T([1-7])(?:\s*\(([^)]*)\))?(?:,?\s*(Confirmed|Reported|Alleged|Speculated))?\]/g,
     (_match, num: string, source: string | undefined, confidence: string | undefined) => {
       const escapedSource = source ? source.replace(/"/g, "&quot;") : "";
-      const title = `Tier ${num} source${escapedSource ? `: ${escapedSource}` : ""}`;
-      let result = `<span class="ms-tier" data-tier="${num}" title="${title}">T${num}</span>`;
+      const desc = TIER_DESCRIPTIONS[num] ?? `Tier ${num}`;
+      const title = `${desc}${escapedSource ? ` — ${escapedSource}` : ""}`;
+      const anchor = TIER_ANCHORS[num] ?? "#primary-sources";
+      let result = `<a href="${anchor}" class="ms-tier-link"><span class="ms-tier" data-tier="${num}" title="${title}">T${num}</span></a>`;
       if (confidence) {
         result += ` <span class="ms-confidence" data-level="${confidence.toLowerCase()}">${confidence}</span>`;
       }
@@ -125,7 +202,63 @@ function postProcess(html: string): string {
   html = html.replace(/>analysis\/hypotheses\.md</g, ">Hypothesis Evaluation<");
   html = html.replace(/>analysis\/foreign-intel-layer\.md</g, ">Foreign Intelligence<");
 
+  // Replace inline prose .md references (inside <code> tags or plain text)
+  const proseReplacements: [RegExp, string][] = [
+    [/<code>(?:analysis\/)?hypotheses\.md<\/code>/g, "the Hypothesis Evaluation"],
+    [/<code>(?:analysis\/)?connection-analysis\.md<\/code>/g, "the Connection Analysis"],
+    [/<code>(?:analysis\/)?foreign-intel-layer\.md<\/code>/g, "the Foreign Intelligence Assessment"],
+    [/<code>(?:logs\/)?research-log\.md<\/code>/g, "the Research Log"],
+    [/<code>(?:logs\/)?contradictions\.md<\/code>/g, "the Contradictions tracker"],
+    [/<code>(?:logs\/)?known-unknowns\.md<\/code>/g, "the Known Unknowns register"],
+    [/<code>README\.md<\/code>/g, "the Methodology"],
+    [/<code>dossier\.md<\/code>/g, "the Dossier"],
+  ];
+  for (const [slug, name] of Object.entries(CASE_NAMES)) {
+    proseReplacements.push([
+      new RegExp(`<code>(?:cases/)?${slug}\\.md</code>`, "g"),
+      name,
+    ]);
+  }
+  for (const [pattern, replacement] of proseReplacements) {
+    html = html.replace(pattern, replacement);
+  }
+
+  // Apply glossary tooltips to acronyms
+  if (glossary.length > 0) {
+    html = applyGlossary(html, glossary);
+  }
+
   return html;
+}
+
+// ── Heading level adjustment ─────────────────────────────────────────
+
+/** Shift all heading levels down by `shift` (e.g. h1→h3, h2→h4 when shift=2).
+ *  Also adds an id to the former-h1 for deep-linking. */
+function downgradeHeadings(html: string, shift: number): string {
+  return html.replace(
+    /<(\/?)h([1-6])((?:\s[^>]*)?)>/g,
+    (_match, slash: string, levelStr: string, attrs: string) => {
+      const oldLevel = Number(levelStr);
+      const newLevel = Math.min(oldLevel + shift, 6);
+      // For the top-level heading (h1), add an id if not already present
+      if (oldLevel === 1 && !slash && !attrs.includes("id=")) {
+        // Extract text content to generate an id
+        const afterTag = html.slice(html.indexOf(_match) + _match.length);
+        const closingIdx = afterTag.indexOf(`</h${oldLevel}>`);
+        if (closingIdx >= 0) {
+          const inner = afterTag.slice(0, closingIdx);
+          const text = inner.replace(/<[^>]+>/g, "").trim();
+          const id = text.toLowerCase()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/^-+|-+$/g, "") || "section";
+          return `<h${newLevel} id="${id}"${attrs}>`;
+        }
+      }
+      return `<${slash}h${newLevel}${attrs}>`;
+    },
+  );
 }
 
 // ── Heading IDs and table of contents ─────────────────────────────────
@@ -135,11 +268,11 @@ function addHeadingIds(html: string): { toc: string; html: string } {
   const usedIds = new Set<string>();
 
   const processed = html.replace(
-    /<h([2-4])>([\s\S]*?)<\/h\1>/g,
-    (_match, levelStr: string, inner: string) => {
+    /<h([2-4])(?:\s+id="([^"]*)")?((?:\s[^>]*)?)>([\s\S]*?)<\/h\1>/g,
+    (_match, levelStr: string, existingId: string | undefined, otherAttrs: string, inner: string) => {
       const level = Number(levelStr);
       const text = inner.replace(/<[^>]+>/g, "").trim();
-      let id = text.toLowerCase()
+      let id = existingId ?? text.toLowerCase()
         .replace(/[^\w\s-]/g, "")
         .replace(/\s+/g, "-")
         .replace(/^-+|-+$/g, "");
@@ -153,7 +286,7 @@ function addHeadingIds(html: string): { toc: string; html: string } {
       }
       usedIds.add(id);
       headings.push({ level, id, text });
-      return `<h${level} id="${id}">${inner}</h${level}>`;
+      return `<h${level} id="${id}"${otherAttrs}>${inner}</h${level}>`;
     },
   );
 
@@ -342,6 +475,7 @@ async function generateTimelinePage(): Promise<void> {
 
 async function generateSourcesPage(): Promise<void> {
   let content = "";
+  const glossary = await loadGlossary();
 
   // Expert commentary
   try {
@@ -351,7 +485,10 @@ async function generateSourcesPage(): Promise<void> {
       content += "<h2>Named Expert Commentary</h2>\n";
       for (const file of files) {
         const raw = await readFile(join(dir, file), "utf-8");
-        content += `<section class="ms-source-section">${postProcess(String(await marked(raw)))}</section>\n`;
+        let sectionHtml = postProcess(String(await marked(raw)), glossary);
+        // Downgrade heading levels so they nest under the h2
+        sectionHtml = downgradeHeadings(sectionHtml, 2);
+        content += `<section class="ms-source-section">${sectionHtml}</section>\n`;
       }
     }
   } catch { /* directory may not exist */ }
@@ -364,7 +501,9 @@ async function generateSourcesPage(): Promise<void> {
       content += "<h2>Foreign Coverage</h2>\n";
       for (const file of files) {
         const raw = await readFile(join(dir, file), "utf-8");
-        content += `<section class="ms-source-section">${postProcess(String(await marked(raw)))}</section>\n`;
+        let sectionHtml = postProcess(String(await marked(raw)), glossary);
+        sectionHtml = downgradeHeadings(sectionHtml, 2);
+        content += `<section class="ms-source-section">${sectionHtml}</section>\n`;
       }
     }
   } catch { /* directory may not exist */ }
