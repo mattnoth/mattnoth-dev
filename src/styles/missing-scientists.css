@@ -103,6 +103,43 @@
 
   .ms-prose {
     max-inline-size: 75ch;
+
+    /* Make links clearly visible in research prose */
+    & a[href] {
+      color: oklch(42% 0.12 248);
+      text-decoration: underline;
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.2em;
+      text-decoration-color: color-mix(in oklch, oklch(42% 0.12 248) 40%, transparent);
+      transition:
+        color var(--duration-fast) ease,
+        text-decoration-color var(--duration-fast) ease;
+
+      &:hover {
+        color: oklch(35% 0.14 248);
+        text-decoration-color: oklch(35% 0.14 248);
+      }
+
+      &:visited {
+        color: oklch(42% 0.1 300);
+        text-decoration-color: color-mix(in oklch, oklch(42% 0.1 300) 40%, transparent);
+      }
+    }
+  }
+
+  [data-theme="dark"] .ms-prose a[href] {
+    color: oklch(72% 0.1 248);
+    text-decoration-color: color-mix(in oklch, oklch(72% 0.1 248) 40%, transparent);
+
+    &:hover {
+      color: oklch(78% 0.12 248);
+      text-decoration-color: oklch(78% 0.12 248);
+    }
+
+    &:visited {
+      color: oklch(72% 0.08 300);
+      text-decoration-color: color-mix(in oklch, oklch(72% 0.08 300) 40%, transparent);
+    }
   }
 
   /* ── Table of contents ───────────────────────────────────────────── */
@@ -267,6 +304,21 @@
     margin-block-start: var(--space-2xl);
     padding-block-start: var(--space-lg);
     border-block-start: 0.0625rem solid var(--color-border);
+  }
+
+  /* ── Abbreviation tooltips ────────────────────────────────────────── */
+  .ms-prose abbr[title] {
+    text-decoration: underline dotted;
+    text-decoration-color: color-mix(in oklch, var(--color-text-muted) 50%, transparent);
+    text-underline-offset: 0.15em;
+    cursor: help;
+    font-variant: none;
+  }
+
+  /* ── Tier badge links ───────────────────────────────────────────── */
+  .ms-tier-link {
+    text-decoration: none !important;
+    border: none !important;
   }
 
   /* ── Source tier badges ──────────────────────────────────────────── */
@@ -683,6 +735,11 @@
     }
   }
 
+  /* ── Diagram node interactivity hints ─────────────────────────────── */
+  .ms-interactive__canvas svg g g {
+    transition: opacity 0.3s ease;
+  }
+
   /* ── Reduced motion ──────────────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .ms-nav__links a,
@@ -690,6 +747,10 @@
     .ms-prev-next__link,
     .ms-case-nav a,
     .ms-analysis-nav a {
+      transition: none;
+    }
+
+    .ms-interactive__canvas svg g g {
       transition: none;
     }
   }
