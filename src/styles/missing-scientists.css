@@ -307,12 +307,39 @@
   }
 
   /* ── Abbreviation tooltips ────────────────────────────────────────── */
-  .ms-prose abbr[title] {
-    text-decoration: underline dotted;
-    text-decoration-color: color-mix(in oklch, var(--color-text-muted) 50%, transparent);
-    text-underline-offset: 0.15em;
-    cursor: help;
+  .ms-prose abbr[data-tooltip] {
+    position: relative;
+    text-decoration: underline dotted 1.5px;
+    text-decoration-color: color-mix(in oklch, var(--color-accent, #6a9fdb) 60%, transparent);
+    text-underline-offset: 0.18em;
+    cursor: default;
     font-variant: none;
+  }
+
+  .ms-prose abbr[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 0.4rem);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.35rem 0.6rem;
+    background-color: var(--color-surface, #1a1a2e);
+    color: var(--color-text, #e0e0e0);
+    border: 0.0625rem solid var(--color-border, #333);
+    border-radius: var(--radius-md, 0.375rem);
+    box-shadow: 0 0.25rem 0.75rem color-mix(in oklch, var(--color-text, #000) 15%, transparent);
+    font-size: var(--text-sm, 0.8125rem);
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 40;
+  }
+
+  .ms-prose abbr[data-tooltip]:hover::after,
+  .ms-prose abbr[data-tooltip]:focus::after {
+    opacity: 1;
   }
 
   /* ── Tier badge links ───────────────────────────────────────────── */
@@ -738,6 +765,23 @@
     border-radius: var(--radius-md);
     text-align: center;
     color: var(--color-text-muted);
+  }
+
+  /* ── Mobile: timeline & key ──────────────────────────────────────── */
+  @media (max-width: 37.5rem) {
+    .ms-key__list {
+      gap: var(--space-2xs) var(--space-md);
+      font-size: var(--text-xs, 0.75rem);
+    }
+
+    .ms-key {
+      padding: var(--space-sm);
+    }
+
+    .ms-tooltip {
+      max-inline-size: calc(100vw - 2rem);
+      font-size: var(--text-xs, 0.75rem);
+    }
   }
 
   /* ── Print styles ────────────────────────────────────────────────── */

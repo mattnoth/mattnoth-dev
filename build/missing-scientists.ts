@@ -135,7 +135,7 @@ function applyGlossary(html: string, entries: GlossaryEntry[]): string {
       "g",
     );
     // Replace only in text content (outside of HTML tags)
-    html = replaceInTextNodes(html, re, `<abbr title="${full.replace(/"/g, "&quot;")}">${abbr}</abbr>`);
+    html = replaceInTextNodes(html, re, `<abbr data-tooltip="${full.replace(/"/g, "&quot;")}" aria-label="${full.replace(/"/g, "&quot;")}">${abbr}</abbr>`);
   }
   return html;
 }
