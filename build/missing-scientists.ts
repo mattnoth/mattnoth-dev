@@ -114,6 +114,17 @@ function postProcess(html: string): string {
   html = html.replace(/href="README\.md"/g, `href="${BASE}/methodology/"`);
   html = html.replace(/href="logs\/[^"]*\.md"/g, `href="${BASE}/transparency/"`);
 
+  // Replace raw filename link text with display names
+  for (const [slug, name] of Object.entries(CASE_NAMES)) {
+    html = html.replace(
+      new RegExp(`>cases/${slug}\\.md<`, "g"),
+      `>${name}<`,
+    );
+  }
+  html = html.replace(/>analysis\/connection-analysis\.md</g, ">Connection Analysis<");
+  html = html.replace(/>analysis\/hypotheses\.md</g, ">Hypothesis Evaluation<");
+  html = html.replace(/>analysis\/foreign-intel-layer\.md</g, ">Foreign Intelligence<");
+
   return html;
 }
 
