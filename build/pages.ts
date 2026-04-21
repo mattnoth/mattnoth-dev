@@ -7,6 +7,11 @@ import { renderPage, clearTemplateCache } from "./templates.ts";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const DIST_DIR = join(__dirname, "../dist");
 export const SITE_ORIGIN = "https://mattnoth.dev";
+const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og-default.png`;
+
+function jsonLd(data: Record<string, unknown>): string {
+  return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+}
 
 type SocialLink = {
   readonly label: string;
@@ -30,6 +35,10 @@ const SOCIAL_LINKS_HTML = SOCIAL_LINKS
 
 const BASE_SLOTS = {
   social_links: SOCIAL_LINKS_HTML,
+  robots: "index, follow",
+  og_image: DEFAULT_OG_IMAGE,
+  og_type: "website",
+  json_ld: "",
 } as const;
 
 const EMPTY_PROJECTS_HTML =
@@ -108,6 +117,13 @@ export async function generateAllPages(
       title: "Matt Noth — Dev",
       description: "Matt's personal dev site — articles and projects.",
       page_url: `${SITE_ORIGIN}/`,
+      json_ld: jsonLd({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "Matt Noth",
+        url: SITE_ORIGIN,
+        description: "Matt's personal dev site — articles and projects.",
+      }),
       recent_articles: recentArticles.map((a) => articleCard(a, 'h3')).join("\n"),
       featured_projects:
         featuredProjects.length > 0
@@ -147,13 +163,26 @@ export async function generateAllPages(
   for (const item of articles) {
     const { title, slug, date, tags, description } = item.meta;
     const tagHtml = tags.map((t) => `<span class="tag">${t}</span>`).join("");
+    const articleUrl = `${SITE_ORIGIN}/articles/${slug}/`;
     await generatePage(
       "article.html",
       {
         title: `${title} — Matt Noth`,
         page_title: title,
         description,
-        page_url: `${SITE_ORIGIN}/articles/${slug}/`,
+        page_url: articleUrl,
+        og_type: "article",
+        json_ld: jsonLd({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: title,
+          description,
+          url: articleUrl,
+          datePublished: date,
+          author: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+          publisher: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+          keywords: tags,
+        }),
         date,
         tags: tagHtml,
         reading_time: String(item.readingTime),

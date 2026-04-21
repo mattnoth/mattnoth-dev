@@ -8,6 +8,7 @@ import { generateMissingScientistsPages } from "./missing-scientists.ts";
 import { generateSitemap } from "./sitemap.ts";
 import { concatCss, copyAssets, DIST_DIR, SRC_DIR } from "./copy-assets.ts";
 import { lintClasses } from "./lint-classes.ts";
+import { generateImages } from "./generate-images.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -113,6 +114,7 @@ async function runBuild(): Promise<void> {
   await stepCss();
   await stepJs(true, true);
   await stepAssets();
+  await generateImages();
 
   console.log(`[build] done: ${ms(total)}`);
 }

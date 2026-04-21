@@ -9,6 +9,26 @@ import { marked } from "marked";
 import { renderPage } from "./templates.ts";
 import { SITE_ORIGIN } from "./pages.ts";
 
+const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og-default.png`;
+
+function jsonLd(data: Record<string, unknown>): string {
+  return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+}
+
+/** Shared SEO slots for all missing-scientists pages. */
+function seoSlots(opts: {
+  pageUrl: string;
+  ogType?: string;
+  jsonLdData?: Record<string, unknown>;
+}): Record<string, string> {
+  return {
+    robots: "noindex, follow",
+    og_image: DEFAULT_OG_IMAGE,
+    og_type: opts.ogType ?? "website",
+    json_ld: opts.jsonLdData ? jsonLd(opts.jsonLdData) : "",
+  };
+}
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const RESEARCH_DIR = process.env["MS_RESEARCH_DIR"]
@@ -385,10 +405,22 @@ async function generateLandingPage(version: string, lastUpdated: string): Promis
 
   const pageTitle = title || "Deaths and Disappearances of U.S. Defense Scientists";
 
+  const landingUrl = `${SITE_ORIGIN}${BASE}/`;
   await generatePage("ms-page.html", {
     title: `${pageTitle} — Matt Noth`,
     description: "A structured, evidence-based research dossier on deaths and disappearances of U.S. defense and advanced-research scientists.",
-    page_url: `${SITE_ORIGIN}${BASE}/`,
+    page_url: landingUrl,
+    ...seoSlots({
+      pageUrl: landingUrl,
+      jsonLdData: {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: pageTitle,
+        url: landingUrl,
+        description: "A structured, evidence-based research dossier on deaths and disappearances of U.S. defense and advanced-research scientists.",
+        author: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+      },
+    }),
     page_title: pageTitle,
     ms_nav: generateNav(`${BASE}/`),
     breadcrumb: "",
@@ -424,10 +456,25 @@ async function generateCasePages(): Promise<void> {
       prevNext = `<nav class="ms-prev-next" aria-label="Case navigation">${prev}${next}</nav>`;
     }
 
+    const caseUrl = `${SITE_ORIGIN}${BASE}/cases/${slug}/`;
+    const caseDesc = `Case file: ${name}. Part of the research dossier on deaths and disappearances of U.S. defense scientists.`;
     await generatePage("ms-page.html", {
       title: `${title || name} — Research — Matt Noth`,
-      description: `Case file: ${name}. Part of the research dossier on deaths and disappearances of U.S. defense scientists.`,
-      page_url: `${SITE_ORIGIN}${BASE}/cases/${slug}/`,
+      description: caseDesc,
+      page_url: caseUrl,
+      ...seoSlots({
+        pageUrl: caseUrl,
+        ogType: "article",
+        jsonLdData: {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: title || name,
+          description: caseDesc,
+          url: caseUrl,
+          author: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+          publisher: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+        },
+      }),
       page_title: title || name,
       ms_nav: generateNav(`${BASE}/cases/${slug}/`),
       breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">${name}</span></nav>`,
@@ -460,10 +507,25 @@ async function generateAnalysisPages(): Promise<void> {
       ).join("")
     }</ul></nav>`;
 
+    const analysisUrl = `${SITE_ORIGIN}${BASE}/analysis/${slug}/`;
+    const analysisDesc = `${label}. Part of the research dossier on deaths and disappearances of U.S. defense scientists.`;
     await generatePage("ms-page.html", {
       title: `${title || label} — Research — Matt Noth`,
-      description: `${label}. Part of the research dossier on deaths and disappearances of U.S. defense scientists.`,
-      page_url: `${SITE_ORIGIN}${BASE}/analysis/${slug}/`,
+      description: analysisDesc,
+      page_url: analysisUrl,
+      ...seoSlots({
+        pageUrl: analysisUrl,
+        ogType: "article",
+        jsonLdData: {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: title || label,
+          description: analysisDesc,
+          url: analysisUrl,
+          author: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+          publisher: { "@type": "Person", name: "Matt Noth", url: SITE_ORIGIN },
+        },
+      }),
       page_title: title || label,
       ms_nav: generateNav(`${BASE}/analysis/${slug}/`),
       breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Analysis</span></nav>`,
@@ -479,20 +541,24 @@ async function generateAnalysisPages(): Promise<void> {
 }
 
 async function generateDiagramPage(): Promise<void> {
+  const diagramUrl = `${SITE_ORIGIN}${BASE}/diagram/`;
   await generatePage("ms-diagram.html", {
     title: "Connection Diagram — Research — Matt Noth",
     description: "Interactive connection diagram showing relationships between cases, institutions, and programs.",
-    page_url: `${SITE_ORIGIN}${BASE}/diagram/`,
+    page_url: diagramUrl,
+    ...seoSlots({ pageUrl: diagramUrl }),
     page_title: "Connection Diagram",
     ms_nav: generateNav(`${BASE}/diagram/`),
   }, "unpublished/missing-scientists/diagram/index.html");
 }
 
 async function generateTimelinePage(): Promise<void> {
+  const timelineUrl = `${SITE_ORIGIN}${BASE}/timeline/`;
   await generatePage("ms-timeline.html", {
     title: "Event Timeline — Research — Matt Noth",
     description: "Interactive chronological timeline of all documented events.",
-    page_url: `${SITE_ORIGIN}${BASE}/timeline/`,
+    page_url: timelineUrl,
+    ...seoSlots({ pageUrl: timelineUrl }),
     page_title: "Event Timeline",
     ms_nav: generateNav(`${BASE}/timeline/`),
   }, "unpublished/missing-scientists/timeline/index.html");
@@ -535,10 +601,12 @@ async function generateSourcesPage(): Promise<void> {
 
   const { toc, html: contentHtml } = addHeadingIds(content);
 
+  const sourcesUrl = `${SITE_ORIGIN}${BASE}/sources/`;
   await generatePage("ms-page.html", {
     title: "Sources & Commentary — Research — Matt Noth",
     description: "Consolidated expert commentary and foreign coverage.",
-    page_url: `${SITE_ORIGIN}${BASE}/sources/`,
+    page_url: sourcesUrl,
+    ...seoSlots({ pageUrl: sourcesUrl }),
     page_title: "Sources & Commentary",
     ms_nav: generateNav(`${BASE}/sources/`),
     breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Sources</span></nav>`,
@@ -557,10 +625,12 @@ async function generateMethodologyPage(): Promise<void> {
   const { title, html: bodyHtml } = extractTitle(rawHtml);
   const { toc, html: contentHtml } = addHeadingIds(bodyHtml);
 
+  const methodologyUrl = `${SITE_ORIGIN}${BASE}/methodology/`;
   await generatePage("ms-page.html", {
     title: "Methodology — Research — Matt Noth",
     description: "Research methodology, source tier taxonomy, and confidence rating system.",
-    page_url: `${SITE_ORIGIN}${BASE}/methodology/`,
+    page_url: methodologyUrl,
+    ...seoSlots({ pageUrl: methodologyUrl }),
     page_title: title || "Methodology",
     ms_nav: generateNav(`${BASE}/methodology/`),
     breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Methodology</span></nav>`,
@@ -595,10 +665,12 @@ async function generateTransparencyPage(): Promise<void> {
 
   const { toc, html: contentHtml } = addHeadingIds(content);
 
+  const transparencyUrl = `${SITE_ORIGIN}${BASE}/transparency/`;
   await generatePage("ms-page.html", {
     title: "Transparency — Research — Matt Noth",
     description: "Research log, contradictions, and known unknowns.",
-    page_url: `${SITE_ORIGIN}${BASE}/transparency/`,
+    page_url: transparencyUrl,
+    ...seoSlots({ pageUrl: transparencyUrl }),
     page_title: "Transparency",
     ms_nav: generateNav(`${BASE}/transparency/`),
     breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Transparency</span></nav>`,
