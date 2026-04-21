@@ -106,7 +106,7 @@ function generateCaseList(currentSlug?: string): string {
 
 // ── Glossary ──────────────────────────────────────────────────────────
 
-interface GlossaryEntry { abbr: string; full: string }
+interface GlossaryEntry { abbr: string; full: string; url?: string }
 
 let glossaryEntries: GlossaryEntry[] | null = null;
 
@@ -124,7 +124,7 @@ async function loadGlossary(): Promise<GlossaryEntry[]> {
 }
 
 function applyGlossary(html: string, entries: GlossaryEntry[]): string {
-  for (const { abbr, full } of entries) {
+  for (const { abbr, full, url } of entries) {
     // Escape special regex characters in the abbreviation
     const escaped = abbr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // Match the abbreviation as a whole word, but NOT inside HTML tags or
@@ -134,8 +134,13 @@ function applyGlossary(html: string, entries: GlossaryEntry[]): string {
       `(?<![\\w/\\.">])${escaped}(?![\\w<])`,
       "g",
     );
+    // Build the <abbr> element, optionally wrapped in an outbound link
+    const abbrTag = `<abbr data-tooltip="${full.replace(/"/g, "&quot;")}" aria-label="${full.replace(/"/g, "&quot;")}">${abbr}</abbr>`;
+    const replacement = url
+      ? `<a href="${url}" class="glossary-link" target="_blank" rel="noopener">${abbrTag}</a>`
+      : abbrTag;
     // Replace only in text content (outside of HTML tags)
-    html = replaceInTextNodes(html, re, `<abbr data-tooltip="${full.replace(/"/g, "&quot;")}" aria-label="${full.replace(/"/g, "&quot;")}">${abbr}</abbr>`);
+    html = replaceInTextNodes(html, re, replacement);
   }
   return html;
 }

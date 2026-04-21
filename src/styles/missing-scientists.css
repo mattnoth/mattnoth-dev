@@ -342,6 +342,21 @@
     opacity: 1;
   }
 
+  /* ── Glossary outbound links ────────────────────────────────────── */
+  .ms-prose a.glossary-link {
+    text-decoration: none;
+    border-bottom: none;
+    color: inherit;
+  }
+  .ms-prose a.glossary-link abbr[data-tooltip] {
+    text-decoration: underline dotted 1.5px;
+    text-decoration-color: color-mix(in oklch, var(--color-accent, #6a9fdb) 60%, transparent);
+  }
+  .ms-prose a.glossary-link:hover abbr[data-tooltip] {
+    text-decoration-style: solid;
+    text-decoration-color: var(--color-accent, #6a9fdb);
+  }
+
   /* ── Tier badge links ───────────────────────────────────────────── */
   .ms-tier-link {
     text-decoration: none !important;
