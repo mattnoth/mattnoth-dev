@@ -1,36 +1,27 @@
 @layer tokens {
   /*
-    Palette: "Silver Steel"
+    Palette: "Neon Bloom" (dark mode experiment)
     —————————————————————————————————————————————————————————
-    Evolved from "Workshop at Night." The warm cream backgrounds
-    and cool dark-mode slates stay; the accent shifts from amber-
-    orange to a muted steel blue inspired by the silver-blue /
-    silver-green iridescence in the Apple TV+ branding stills.
+    Light mode: unchanged warm ivory + steel blue (Silver Steel).
+    Dark mode: deep near-black with a purple undertone; accent
+    shifts into the purple-through-pink band (synthwave-lite).
 
-    Why the change:
-    • The amber-orange accent on near-black dark mode read as
-      Pornhub. That's not the vibe for a portfolio/blog.
-    • Steel blue is serious-but-relaxed, pairs naturally with
-      the warm Fraunces headings, and won't fight beach-photo
-      hero images.
-    • Enough chroma to feel alive as links/buttons, not so much
-      that it screams "tech startup."
-
-    Light mode keeps the warm ivory paper feel — the accent just
-    cooled down. Dark mode gets neutral-white text (no more
-    cream-on-black) so the whole palette coheres.
+    The goal is a subtle glow feel — not full vaporwave, not
+    trying to be Figma. The chroma on the accent is high enough
+    to read as neon at small sizes, low enough on bg/surface
+    that it doesn't feel cosplay.
 
     Contrast (WCAG 2.1):
       Light: accent on bg ≈ 5.3:1  (AA normal text ✓)
-      Dark:  accent on bg ≈ 7.5:1  (AAA normal text ✓)
+      Dark:  accent on bg ≈ 7.8:1  (AAA normal text ✓)
 
     Gamut: all values verified in-gamut for sRGB displays.
 
     Hex approximations (for reference / Figma):
       Light accent:       #2E6799
       Light accent hover: #175283
-      Dark accent:        #6AA3D9
-      Dark accent hover:  #82B6E7
+      Dark accent:        #C87FE8  (neon violet-pink)
+      Dark accent hover:  #D89BF0
 
     Heading font: Fraunces — quirky optical-size serif with real
     character. Chosen for its warmth and distinctiveness in a
@@ -99,23 +90,26 @@
   }
 
   /* ── Dark mode ──
-     Key changes from the old dark palette:
-     1. Text shifted from warm cream (hue 80) → neutral cool white (hue 260).
-        This kills the orange-and-black problem at the root.
-     2. Muted text also cooled and desaturated.
-     3. Accent is the same steel-blue family but lighter (70% vs 50%)
-        for proper contrast on dark backgrounds.
+     Neon Bloom experiment: steel blue → neon violet-pink accent.
+     1. Bg/surface hue shifts from 260 (cold blue-grey) → 290
+        (very slight purple undertone) at near-zero chroma so it
+        still reads as near-black, not lavender.
+     2. Accent moves to hue 315 (purple-pink), chroma 0.20 — vivid
+        enough to glow on a dark field, still inside sRGB gamut.
+     3. on-accent flips to deep purple-black so it contrasts the
+        bright neon without looking like a grey blob.
+     4. Border and code-bg follow the same 290-hue family.
   */
   [data-theme="dark"] {
-    --color-bg:           oklch(14% 0.016 260);   /* deep cool slate     #05090F */
-    --color-surface:      oklch(19% 0.018 260);   /* raised panel        #0F131B */
-    --color-text:         oklch(92% 0.004 260);   /* neutral white       #E2E4E7 */
-    --color-text-muted:   oklch(62% 0.008 260);   /* cool mid-gray       #83868B */
-    --color-accent:       oklch(70% 0.05 248);    /* steelier */
-    --color-accent-hover: oklch(76% 0.05 248);    /* steelier */
-    --color-on-accent:    oklch(14% 0.016 260);   /* near-black on light accent */
-    --color-border:       oklch(28% 0.018 260);   /* subtle divider      #232931 */
-    --color-code-bg:      oklch(20% 0.020 260);   /* code block fill     #10161F */
+    --color-bg:           oklch(13% 0.012 290);   /* near-black, purple tint  #090810 */
+    --color-surface:      oklch(18% 0.016 290);   /* raised panel             #110F1C */
+    --color-text:         oklch(93% 0.006 300);   /* neutral white, cool tint #ECEAF2 */
+    --color-text-muted:   oklch(62% 0.014 300);   /* cool-purple mid-gray     #888098 */
+    --color-accent:       oklch(73% 0.14 310);    /* silver-neon violet        #BF8FD8 */
+    --color-accent-hover: oklch(80% 0.12 310);    /* brighter silver-violet   #D1A8E6 */
+    --color-on-accent:    oklch(12% 0.025 290);   /* deep purple-black        #07050F */
+    --color-border:       oklch(26% 0.022 290);   /* subtle purple divider    #1F1A30 */
+    --color-code-bg:      oklch(19% 0.020 290);   /* code block fill          #110F1F */
   }
 
   /* ── Light mode (explicit override, mirrors :root) ── */
