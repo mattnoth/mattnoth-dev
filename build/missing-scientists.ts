@@ -2,7 +2,7 @@
 // Generates the /unpublished/missing-scientists/ section by consuming
 // research artifacts from the sibling research repository.
 
-import { readFile, readdir, mkdir, copyFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, mkdir, copyFile, writeFile, access } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
@@ -601,6 +601,15 @@ async function copyDataFiles(): Promise<void> {
 
 export async function generateMissingScientistsPages(): Promise<void> {
   console.log("[ms] generating missing-scientists pages...");
+
+  // Skip gracefully when the research repo isn't available (e.g. Netlify CI)
+  try {
+    await access(join(RESEARCH_DIR, "dossier.md"));
+  } catch {
+    console.log("[ms] research repo not found at %s — skipping", RESEARCH_DIR);
+    return;
+  }
+
   const { version, lastUpdated } = await getVersion();
 
   await Promise.all([
