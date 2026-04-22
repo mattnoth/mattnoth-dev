@@ -347,6 +347,21 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** The table scroll-containment work added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to stop a double-horizontal-scroll on mobile. This cap was not in the original brief.
 **Learning:** The missing-scientists prose container overflows the viewport on mobile without the table work in place. The table wrapper cap is a band-aid, not a fix. The root cause is in the page layout CSS for missing-scientists pages — the prose column width is not capped at the viewport. The real fix is prose overflow containment, which is a separate task. Until that lands, any new scroll-container element on these pages may need its own `max-inline-size` cap.
 
+### `flex-wrap: nowrap` does not force overflow — `inline-size: max-content` is required
+**Date:** 2026-04-22
+**Context:** `.ms-nav__links` was set to `flex-wrap: nowrap` to prevent nav items from wrapping. The flex container still shrank to fit its parent width.
+**Learning:** `flex-wrap: nowrap` prevents line breaks but does not cause the container to overflow its parent. To force the container to express its full content width and scroll if necessary, set `inline-size: max-content` on the container. Without this, the flex container compresses to the parent's available width and items may still get squeezed.
+
+### `<details>` content is hidden via UA stylesheet — needs explicit `display` override for desktop forced-open state
+**Date:** 2026-04-22
+**Context:** Missing-scientists TOC uses `<details>` for the mobile dropdown. On desktop, the `<summary>` trigger is hidden and the `<ol>` should always be visible regardless of whether `<details>` is open or closed.
+**Learning:** The UA stylesheet hides `<details>` content when it is not open. On desktop, if `<summary>` is hidden and `<details>` is closed, the `<ol>` remains hidden. The fix is to set `display: block` (or equivalent) explicitly on the `<ol>` at the desktop breakpoint — this overrides the UA hidden state without relying on `<details open>`.
+
+### `--container-padding` is the correct token for viewport-edge calculations, not `--space-md`
+**Date:** 2026-04-22
+**Context:** `.ms-table-wrap` needed a `max-inline-size` cap to prevent double-scroll. First pass used `calc(100vw - 2 * var(--space-md))`. The space-md token and the actual container padding are different values.
+**Learning:** `--container-padding` is the token that defines the actual horizontal inset of the page content area. Use `calc(100vw - 2 * var(--container-padding))` for anything that needs to be capped at viewport width minus the real page margins. Using `--space-md` produces a visually correct result only by coincidence if the two tokens happen to match.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".

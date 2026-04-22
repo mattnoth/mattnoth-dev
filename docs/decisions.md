@@ -306,6 +306,26 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to prevent the double-scroll symptom. Did not fix the underlying prose overflow in this session.
 **Consequences:** The band-aid hides the symptom without fixing the root cause. The missing-scientists prose layout still overflows on mobile. A dedicated mobile layout fix session is needed. If other scroll-island elements are added to these pages before the layout fix lands, they will need the same cap.
 
+## 2026-04-22 — Mobile TOC overlay via `<details>` + inline light-dismiss script, no TS module
+**Context:** Missing-scientists pages needed a collapsible TOC for mobile without breaking the always-visible sidebar on desktop. Options: (a) a new TS module loaded via `[data-module]`, (b) inline `<script>` in the build output, (c) CSS-only via `:target` or `popover`.
+**Decision:** Inline `<script>` emitted by `build/missing-scientists.ts`. The script is under 15 lines, handles click-outside and link-click dismissal, and requires no module registry entry or separate file.
+**Consequences:** Light-dismiss logic lives in build output, not in a versioned TS file — making it harder to audit in isolation. Acceptable trade-off for a single-use, sub-15-line behavior. If the pattern expands (multiple overlay triggers, animation hooks), migrate to a TS module.
+
+## 2026-04-22 — Grid layout uses `:has(.ms-toc)` to conditionally allocate sidebar column
+**Context:** Not all missing-scientists pages have a TOC. On pages without one, allocating a 15rem sidebar column would leave an empty gap.
+**Decision:** The grid template for missing-scientists page layout uses `:has(.ms-toc)` to conditionally switch from single-column to sidebar+content layout. Pages without `.ms-toc` get single-column automatically.
+**Consequences:** No per-page template flag needed; presence of the `.ms-toc` element is the signal. Any page that conditionally includes the TOC block gets the correct layout without extra build logic.
+
+## 2026-04-22 — Desktop TOC: `<summary>` hidden, `<ol>` forced visible via CSS
+**Context:** On desktop, the `<details>` summary trigger should be invisible and the TOC list should always be open. CSS-only approach was preferred over setting `open` attribute in the build output.
+**Decision:** At the desktop breakpoint (≥64rem), set `display: none` on the `<summary>` and `display: block` on the `<ol>` inside `<details>`. The `<details>` open/closed state is irrelevant at this breakpoint.
+**Consequences:** The forced-open state is entirely CSS-driven — no JS and no `open` attribute required. Closing the `<details>` on mobile and then resizing to desktop does not leave an empty sidebar. If the breakpoint logic ever changes, both the summary hide and the list show rules must move together.
+
+## 2026-04-22 — `.ms-nav__links` never wraps at any width; horizontal scroll strip
+**Context:** The section nav on missing-scientists pages had a 40rem breakpoint at which items would wrap. At intermediate widths (~1111px) the 9 items could not wrap cleanly at any size — they always produced a janky intermediate state.
+**Decision:** Remove the wrapping breakpoint entirely. Set `inline-size: max-content; overflow-x: auto` and hide the scrollbar. Nav items never wrap; the strip scrolls horizontally when it overflows.
+**Consequences:** On very narrow viewports the nav requires a horizontal swipe to reach later items. This is acceptable given the section structure. The scrollbar is hidden but the strip is still scrollable — any future touch-target work should verify swipe reachability on real devices.
+
 ## 2026-04-12 — About paragraph 2 uses two-sentence structure (thesis + gerund expansion), not em-dash list
 **Context:** About paragraph 2 needed to describe Matt's current AI infrastructure work without burning Harness brief vocabulary. Two structural options debated: (a) "AI infrastructure for coding agents — engineering context, MCP servers, multi-agent workflows" (em-dash list), (b) "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." (two sentences).
 **Decision:** Option (b): thesis sentence + gerund-fragment expansion. Matt made a post-edit cut dropping "That's meant" from the start of sentence 2, making it a gerund fragment.

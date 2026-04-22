@@ -9,23 +9,26 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-22 (missing-scientists mobile table polish)
-- Created branch `feat/ms-mobile-tables` from `feat/pre-push-safeguard`.
-- Added marked v15 renderer override in `build/missing-scientists.ts` to wrap every `<table>` in `<div class="ms-table-wrap">` for horizontal scroll containment. Used `marked.use({ renderer: { table() {} } })` pattern after discovering standalone `Renderer` instances lose parser context in v15.
-- Added table CSS rules in `src/styles/missing-scientists.css` inside `@layer components`: scroll wrapper (`overflow-x: auto`), collapsed borders, header background via `color-mix`, `overflow-wrap: anywhere`.
-- Added `@media (max-width: 37.5rem)` rule to hide the 7th "Case File" column on narrow viewports for the Case Index table.
-- Added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to prevent double-swipe on mobile — band-aid for a pre-existing prose overflow bug on missing-scientists pages.
-- Verified build passes; `ms-table-wrap` appears in 11 generated HTML files.
+## Last session — 2026-04-22 (missing-scientists mobile polish)
+- Extended `build/missing-scientists.ts` table renderer: `<div class="ms-table-wrap">` wrapping now also applies `max-inline-size: calc(100vw - 2 * var(--container-padding))` using the actual page padding token.
+- Added table CSS to `src/styles/missing-scientists.css`: collapsed borders, header backgrounds via `color-mix`, `overflow-wrap: anywhere`, 7th-column hide on narrow viewports.
+- Converted `.ms-nav__links` to a never-wrapping horizontal scroll strip with `inline-size: max-content` and hidden scrollbar; removed the 40rem wrapping breakpoint.
+- Implemented mobile TOC overlay in `build/missing-scientists.ts`: `<details>` summary as compact trigger, `<ol>` as absolute-positioned dropdown with light-dismiss JS (click-outside + link-click closes it), starts closed on mobile via inline `<script>`.
+- On desktop (≥64rem), TOC `<summary>` hidden and `<ol>` forced visible via CSS regardless of `<details>` open state.
+- Grid layout uses `:has(.ms-toc)` to only allocate sidebar column when TOC is present; pages without a TOC get single-column layout.
+- Tightened mobile vertical spacing: header margin and layout grid gap reduced so "Abstract" sits closer to title.
+- Organized research prompts into `completed/` and `queued/` folders; created `prompt-mobile-toc-overlay.md`; updated `TODO-research.md`.
 
 ## Next session
-Fix the pre-existing mobile layout issues on missing-scientists pages: sub-nav positioning, Contents dropdown (`<details>`) styling, and prose overflow containment that is currently masked by the table wrapper band-aid.
+Test TOC overlay and table scroll at multiple viewports (consider Playwright). Then address `<hr>` alignment and table overflow edge cases on missing-scientists pages.
 
 ## Open questions
-- Branch scope drift: `feat/ms-mobile-tables` was cut from `feat/pre-push-safeguard` which contains earlier unrelated work. Before merging/PR, consider rebasing or squash-merging cleanly onto main.
-- Mobile sub-nav layout on missing-scientists pages needs redesign — current multi-section icon pattern is cramped on narrow viewports.
-- `<details>` Contents dropdown styling needs rethinking for mobile on missing-scientists pages.
-- Horizontal rule alignment inconsistency on missing-scientists pages on mobile (left/right edges don't match content column).
+- Branch scope drift: `feat/ms-mobile-tables` (now `feat/pre-push-safeguard`) contains unrelated work. Before merging/PR, consider rebasing or squash-merging cleanly onto main.
+- Tables still touch the right edge on some intermediate display sizes — may need Playwright testing to confirm.
+- `<hr>` alignment on missing-scientists pages on mobile not yet addressed.
+- Mobile TOC overlay not tested on actual devices.
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
+- `--container-padding` is the correct padding token for viewport-edge calculations on missing-scientists pages, not `--space-md`. Earlier table wrapper used `--space-md`; updated this session.
 - `src/content/projects/mcp-snowflake.md` has placeholder body prose. When Matt is ready to build a real project here, flip `draft: false` (or delete the file and start fresh).
 - Immutable cache (`Cache-Control: public, max-age=31536000, immutable`) is set on `/*.css` and `/*.js` in `netlify.toml`, but esbuild emits `main.css`/`main.js` without content hashes. Returning visitors will see stale assets for up to a year after a redeploy. Fix: content-hashed filenames (ripples into `base.html` slot) or shorter TTL. Decision deferred to Matt.
 - `--color-text-muted` in light mode (`oklch(45% 0.018 260)` on `oklch(96% 0.012 80)`) is ~4.2:1 — passes AA for large text, near-fails for small body text. Needs a real WCAG contrast-checker pass before deploy.

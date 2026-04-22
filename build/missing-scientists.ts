@@ -365,6 +365,22 @@ function addHeadingIds(html: string): { toc: string; html: string } {
         ${tocItems}
       </ol>
     </details>
+    <script>
+      (function(){
+        var nav = document.currentScript.closest('.ms-toc');
+        var det = nav.querySelector('details');
+        // Close on click outside
+        document.addEventListener('click', function(e){
+          if (det.open && !nav.contains(e.target)) det.open = false;
+        });
+        // Close on TOC link click (mobile navigation)
+        nav.addEventListener('click', function(e){
+          if (e.target.closest('.ms-toc__item a')) det.open = false;
+        });
+        // Start closed on mobile
+        if (window.innerWidth < 1024) det.open = false;
+      })();
+    </script>
   </nav>`;
 
   return { toc, html: processed };
