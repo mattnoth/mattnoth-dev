@@ -5,7 +5,17 @@
 import { readFile, readdir, mkdir, copyFile, writeFile, access } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { marked } from "marked";
+import { marked, type Tokens } from "marked";
+
+marked.use({
+  renderer: {
+    table(token: Tokens.Table): string {
+      const inner = marked.Renderer.prototype.table.call(this, token);
+      return `<div class="ms-table-wrap">${inner}</div>`;
+    },
+  },
+});
+
 import { renderPage } from "./templates.ts";
 import { SITE_ORIGIN } from "./pages.ts";
 import { transformRedacted } from "./markdown.ts";

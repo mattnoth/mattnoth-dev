@@ -9,22 +9,22 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-22 (circle-of-slop article + redacted transform)
-- Published `src/content/articles/circle-of-slop.md` from Matt's email text; preserved as-is per his explicit direction ("publishing it as is — the shape of the email, list, and asides formulate the thought itself"). Voice, typos, and inline `[REDACTED]` gags all intentionally kept.
-- Added two in-article links: "Dean Pritchard" → villains.fandom.com wiki page; "/r/ThatHappened/" → reddit.com.
-- Added `.redacted` censor-bar class to `src/styles/components.css` under `@layer components`: inline-block dark ink bar (`oklch(11% 0.015 260)`) with text color-matched to background; reveals content on hover/focus/focus-within; respects `prefers-reduced-motion`. Colors are hardcoded (not theme tokens) so the bar stays dark regardless of light/dark palette.
-- Confirmed H1 convention: article markdown bodies start at the first paragraph; the `#` heading is rendered via the `page_title` template slot (consistent with `cortex-agents.md`).
-- Mid-session refactor (Matt-approved): moved the three inline `<span class="redacted">` tags in the article markdown back to plain `[REDACTED]` markers and introduced `transformRedacted()` in `build/markdown.ts` — a post-`marked()` string replacement that converts `[REDACTED]` to `<span class="redacted">REDACTED</span>` automatically. Any future `[REDACTED]` in any article now auto-styles.
-- Integrated `transformRedacted` into `build/missing-scientists.ts` via `postProcess`, covering missing-scientists research pages.
-- Extended `build/lint-classes.ts` in two ways: (1) added markdown content scanning (`listContentFiles` + `stripFencedCodeBlocks`) so raw inline HTML in `.md` files is visible to the linter; (2) added `"redacted"` to `JS_APPLIED` as a Category 3 entry ("build-time transform classes"). Both are present in the final file — markdown scanning handles future articles with inline HTML classes, allowlist handles the transform-emitted class.
-- Changed dev server port 3000 → 3001 in `build/build.ts` to sidestep zombie-watcher collision with concurrent agent sessions.
+## Last session — 2026-04-22 (missing-scientists mobile table polish)
+- Created branch `feat/ms-mobile-tables` from `feat/pre-push-safeguard`.
+- Added marked v15 renderer override in `build/missing-scientists.ts` to wrap every `<table>` in `<div class="ms-table-wrap">` for horizontal scroll containment. Used `marked.use({ renderer: { table() {} } })` pattern after discovering standalone `Renderer` instances lose parser context in v15.
+- Added table CSS rules in `src/styles/missing-scientists.css` inside `@layer components`: scroll wrapper (`overflow-x: auto`), collapsed borders, header background via `color-mix`, `overflow-wrap: anywhere`.
+- Added `@media (max-width: 37.5rem)` rule to hide the 7th "Case File" column on narrow viewports for the Case Index table.
+- Added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to prevent double-swipe on mobile — band-aid for a pre-existing prose overflow bug on missing-scientists pages.
+- Verified build passes; `ms-table-wrap` appears in 11 generated HTML files.
 
 ## Next session
-Matt plans to draft a prompt for censor-bar styling tweaks (`.redacted` class in `src/styles/components.css`). No specifics yet — run `/start-session` and check for a prompt from Matt before proceeding.
+Fix the pre-existing mobile layout issues on missing-scientists pages: sub-nav positioning, Contents dropdown (`<details>`) styling, and prose overflow containment that is currently masked by the table wrapper band-aid.
 
 ## Open questions
-- Branch scope drift: this session's work landed on `feat/pre-push-safeguard`, which was for an earlier unrelated commit. Before pushing/PR, consider splitting or renaming the branch.
-- Matt plans to draft a prompt for censor-bar styling tweaks — no specifics yet. Next session applies them once Matt provides the prompt.
+- Branch scope drift: `feat/ms-mobile-tables` was cut from `feat/pre-push-safeguard` which contains earlier unrelated work. Before merging/PR, consider rebasing or squash-merging cleanly onto main.
+- Mobile sub-nav layout on missing-scientists pages needs redesign — current multi-section icon pattern is cramped on narrow viewports.
+- `<details>` Contents dropdown styling needs rethinking for mobile on missing-scientists pages.
+- Horizontal rule alignment inconsistency on missing-scientists pages on mobile (left/right edges don't match content column).
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
 - `src/content/projects/mcp-snowflake.md` has placeholder body prose. When Matt is ready to build a real project here, flip `draft: false` (or delete the file and start fresh).
 - Immutable cache (`Cache-Control: public, max-age=31536000, immutable`) is set on `/*.css` and `/*.js` in `netlify.toml`, but esbuild emits `main.css`/`main.js` without content hashes. Returning visitors will see stale assets for up to a year after a redeploy. Fix: content-hashed filenames (ripples into `base.html` slot) or shorter TTL. Decision deferred to Matt.

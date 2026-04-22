@@ -337,6 +337,16 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** `transformRedacted()` in `build/markdown.ts` runs a string replacement on the rendered HTML after `marked()`. It matches the literal sequence `[REDACTED]` including the brackets.
 **Learning:** If a future article needs to actually display the text `[REDACTED]` as prose (e.g. "the document said [REDACTED] in three places") that text will be incorrectly replaced with a censor-bar span. The workaround at article authoring time is to escape the brackets or rephrase. There is no current per-file opt-out mechanism for the transform.
 
+### marked v15 renderer overrides require `marked.use()`, not standalone `Renderer` instances
+**Date:** 2026-04-22
+**Context:** `build/missing-scientists.ts` needed to wrap every `<table>` in a scroll container. The prompt suggested calling `marked.Renderer.prototype.table.call(this, token)` on a standalone `new marked.Renderer()` instance.
+**Learning:** In marked v15, a standalone `Renderer` instance loses parser context (`this.parser`, `this.options`). Calling `prototype` methods on it with `call()` or `bind()` produces `parseInline is not a function` errors at runtime. The correct pattern is `marked.use({ renderer: { table(token) { /* call this.parser.parse() etc. here */ } } })` — the method is bound to the live renderer that has parser context. The standalone-instance approach worked in older marked versions; v15 changed the internal architecture.
+
+### missing-scientists pages have a pre-existing prose overflow bug on mobile
+**Date:** 2026-04-22
+**Context:** The table scroll-containment work added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to stop a double-horizontal-scroll on mobile. This cap was not in the original brief.
+**Learning:** The missing-scientists prose container overflows the viewport on mobile without the table work in place. The table wrapper cap is a band-aid, not a fix. The root cause is in the page layout CSS for missing-scientists pages — the prose column width is not capped at the viewport. The real fix is prose overflow containment, which is a separate task. Until that lands, any new scroll-container element on these pages may need its own `max-inline-size` cap.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".

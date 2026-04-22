@@ -296,6 +296,16 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Hardcode both values. A censor bar is a metaphor (opaque ink) that must stay dark-on-dark regardless of palette. Tokenizing the bar color would invert it in dark mode (near-white ink on near-white background) and break the metaphor.
 **Consequences:** If the palette is retuned (hue shift, lightness change), the censor bar stays unchanged — intentional. The bar and reveal text are immune to `[data-theme="dark"]` overrides. If a future design wants a theme-aware redaction effect (e.g. a highlight instead of an ink bar), that is a new design decision requiring a new CSS approach, not just token swaps.
 
+## 2026-04-22 — `marked.use()` renderer extension over standalone `Renderer` instance for table wrapping
+**Context:** `build/missing-scientists.ts` needed to intercept table rendering to add a scroll wrapper div. A standalone `new marked.Renderer()` with prototype method delegation was the first approach; it failed in marked v15 because the instance lacks parser context.
+**Decision:** Use `marked.use({ renderer: { table(token) { … } } })` to override the table renderer. The override is registered once at module load; the method receives the fully-contexted `this` from the live renderer.
+**Consequences:** Any future marked renderer customizations in `build/missing-scientists.ts` or `build/markdown.ts` must use the `marked.use()` pattern. The standalone-instance approach should not be reused — it is documented as broken in v15 in the knowledge base.
+
+## 2026-04-22 — `max-inline-size` viewport cap on `.ms-table-wrap` as band-aid for prose overflow
+**Context:** Mobile testing showed a double horizontal scroll on missing-scientists pages after table wrapping was added — the table wrapper scrolled inside a prose container that was itself already overflowing the viewport. The prose overflow is a pre-existing bug, not introduced by the table work.
+**Decision:** Added `max-inline-size: calc(100vw - 2 * var(--space-md))` to `.ms-table-wrap` to prevent the double-scroll symptom. Did not fix the underlying prose overflow in this session.
+**Consequences:** The band-aid hides the symptom without fixing the root cause. The missing-scientists prose layout still overflows on mobile. A dedicated mobile layout fix session is needed. If other scroll-island elements are added to these pages before the layout fix lands, they will need the same cap.
+
 ## 2026-04-12 — About paragraph 2 uses two-sentence structure (thesis + gerund expansion), not em-dash list
 **Context:** About paragraph 2 needed to describe Matt's current AI infrastructure work without burning Harness brief vocabulary. Two structural options debated: (a) "AI infrastructure for coding agents — engineering context, MCP servers, multi-agent workflows" (em-dash list), (b) "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." (two sentences).
 **Decision:** Option (b): thesis sentence + gerund-fragment expansion. Matt made a post-edit cut dropping "That's meant" from the start of sentence 2, making it a gerund fragment.

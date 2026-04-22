@@ -844,4 +844,43 @@
       transition: none;
     }
   }
+
+  /* ── Tables (wrapped by renderer in build/missing-scientists.ts) ──── */
+  .ms-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-inline-size: calc(100vw - 2 * var(--space-md));
+    margin-block: var(--space-md);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .ms-prose .ms-table-wrap > table {
+    inline-size: 100%;
+    min-inline-size: max-content;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .ms-prose .ms-table-wrap :is(th, td) {
+    padding: var(--space-xs) var(--space-sm);
+    border-block-end: 0.0625rem solid var(--color-border);
+    vertical-align: top;
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+
+  .ms-prose .ms-table-wrap th {
+    font-weight: 600;
+    background-color: color-mix(in oklch, var(--color-surface) 60%, transparent);
+  }
+
+  /* Case Index is the only 7-column table (dossier.md:68-80).
+     Hide the "Case File" column under narrow viewports — the Name
+     column already links to the case page. */
+  @media (max-width: 37.5rem) {
+    .ms-prose .ms-table-wrap table:has(th:nth-child(7)) :is(th, td):nth-child(7) {
+      display: none;
+    }
+  }
 }
