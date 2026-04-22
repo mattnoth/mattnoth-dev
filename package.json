@@ -6,6 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "prepare": "git config core.hooksPath hooks",
     "dev": "tsx build/build.ts --dev",
     "build": "tsc --noEmit && tsc -p tsconfig.build.json --noEmit && tsx build/build.ts",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.build.json --noEmit",
