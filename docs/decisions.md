@@ -286,6 +286,16 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Changed default dev server port in `build/build.ts` from 3000 to 3001.
 **Consequences:** `npm run dev` now binds to port 3001. The zombie-watcher problem (port in use → serve fails but watcher keeps running) still applies if 3001 is also taken. `lsof -i :3001` to find the PID.
 
+## 2026-04-22 — circle-of-slop.md published as-is; "as-is" convention for future articles
+**Context:** `circle-of-slop.md` was composed as an email and handed to the site verbatim. It contains intentional typos ("teh top of my head"), punctuation stylizations ("ding..dingdingding.."), and inline `[REDACTED]` gags. Matt's direction: "publishing it as is — the shape of the email, list, and asides formulate the thought itself."
+**Decision:** Publish without any editorial cleanup. Establish a convention: if an article's frontmatter description notes "published as-is" (or the commit message says so), future agents must not clean up typos, reformat prose, or polish phrasing. The raw form is the content.
+**Consequences:** Typo-correction workflows that apply globally to `src/content/articles/` must be opt-in, not opt-out. A future linter that flags typos would need a per-file suppression mechanism. Agents editing article prose need to explicitly check for an "as-is" indicator before making any changes.
+
+## 2026-04-22 — `.redacted` censor-bar colors hardcoded, not theme tokens
+**Context:** The `.redacted` class in `src/styles/components.css` uses `oklch(11% 0.015 260)` for the bar background and `oklch(97% 0.004 80)` as the reveal text color. An alternative was to draw from `--color-bg` or `--color-text` tokens so the bar participates in the light/dark theme swap.
+**Decision:** Hardcode both values. A censor bar is a metaphor (opaque ink) that must stay dark-on-dark regardless of palette. Tokenizing the bar color would invert it in dark mode (near-white ink on near-white background) and break the metaphor.
+**Consequences:** If the palette is retuned (hue shift, lightness change), the censor bar stays unchanged — intentional. The bar and reveal text are immune to `[data-theme="dark"]` overrides. If a future design wants a theme-aware redaction effect (e.g. a highlight instead of an ink bar), that is a new design decision requiring a new CSS approach, not just token swaps.
+
 ## 2026-04-12 — About paragraph 2 uses two-sentence structure (thesis + gerund expansion), not em-dash list
 **Context:** About paragraph 2 needed to describe Matt's current AI infrastructure work without burning Harness brief vocabulary. Two structural options debated: (a) "AI infrastructure for coding agents — engineering context, MCP servers, multi-agent workflows" (em-dash list), (b) "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." (two sentences).
 **Decision:** Option (b): thesis sentence + gerund-fragment expansion. Matt made a post-edit cut dropping "That's meant" from the start of sentence 2, making it a gerund fragment.

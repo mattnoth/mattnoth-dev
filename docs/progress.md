@@ -9,17 +9,22 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-22 (redacted transform + dev port)
-- Added `transformRedacted()` in `build/markdown.ts` — converts `[REDACTED]` markers in markdown to `<span class="redacted">REDACTED</span>` during HTML generation (string replacement post-marked()).
-- Integrated `transformRedacted` into `build/missing-scientists.ts` via `postProcess`, covering all markdown→HTML paths for the missing-scientists research pages.
-- Added `"redacted"` to the `JS_APPLIED` allowlist in `build/lint-classes.ts` (Category 3: build-time transform classes).
-- Replaced 3 hardcoded `<span class="redacted">REDACTED</span>` tags in `src/content/articles/circle-of-slop.md` with clean `[REDACTED]` markdown syntax.
-- Changed dev server port from 3000 to 3001 in `build/build.ts` to avoid conflicts with concurrent agents.
+## Last session — 2026-04-22 (circle-of-slop article + redacted transform)
+- Published `src/content/articles/circle-of-slop.md` from Matt's email text; preserved as-is per his explicit direction ("publishing it as is — the shape of the email, list, and asides formulate the thought itself"). Voice, typos, and inline `[REDACTED]` gags all intentionally kept.
+- Added two in-article links: "Dean Pritchard" → villains.fandom.com wiki page; "/r/ThatHappened/" → reddit.com.
+- Added `.redacted` censor-bar class to `src/styles/components.css` under `@layer components`: inline-block dark ink bar (`oklch(11% 0.015 260)`) with text color-matched to background; reveals content on hover/focus/focus-within; respects `prefers-reduced-motion`. Colors are hardcoded (not theme tokens) so the bar stays dark regardless of light/dark palette.
+- Confirmed H1 convention: article markdown bodies start at the first paragraph; the `#` heading is rendered via the `page_title` template slot (consistent with `cortex-agents.md`).
+- Mid-session refactor (Matt-approved): moved the three inline `<span class="redacted">` tags in the article markdown back to plain `[REDACTED]` markers and introduced `transformRedacted()` in `build/markdown.ts` — a post-`marked()` string replacement that converts `[REDACTED]` to `<span class="redacted">REDACTED</span>` automatically. Any future `[REDACTED]` in any article now auto-styles.
+- Integrated `transformRedacted` into `build/missing-scientists.ts` via `postProcess`, covering missing-scientists research pages.
+- Extended `build/lint-classes.ts` in two ways: (1) added markdown content scanning (`listContentFiles` + `stripFencedCodeBlocks`) so raw inline HTML in `.md` files is visible to the linter; (2) added `"redacted"` to `JS_APPLIED` as a Category 3 entry ("build-time transform classes"). Both are present in the final file — markdown scanning handles future articles with inline HTML classes, allowlist handles the transform-emitted class.
+- Changed dev server port 3000 → 3001 in `build/build.ts` to sidestep zombie-watcher collision with concurrent agent sessions.
 
 ## Next session
-No specific task queued. Run `/start-session` — likely article content or further polish-phase tweaks.
+Matt plans to draft a prompt for censor-bar styling tweaks (`.redacted` class in `src/styles/components.css`). No specifics yet — run `/start-session` and check for a prompt from Matt before proceeding.
 
 ## Open questions
+- Branch scope drift: this session's work landed on `feat/pre-push-safeguard`, which was for an earlier unrelated commit. Before pushing/PR, consider splitting or renaming the branch.
+- Matt plans to draft a prompt for censor-bar styling tweaks — no specifics yet. Next session applies them once Matt provides the prompt.
 - Addendum wording on `cortex-agents.md` is a first pass — Matt should edit to taste before deploy.
 - `src/content/projects/mcp-snowflake.md` has placeholder body prose. When Matt is ready to build a real project here, flip `draft: false` (or delete the file and start fresh).
 - Immutable cache (`Cache-Control: public, max-age=31536000, immutable`) is set on `/*.css` and `/*.js` in `netlify.toml`, but esbuild emits `main.css`/`main.js` without content hashes. Returning visitors will see stale assets for up to a year after a redeploy. Fix: content-hashed filenames (ripples into `base.html` slot) or shorter TTL. Decision deferred to Matt.

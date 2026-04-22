@@ -327,6 +327,16 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** `transformRedacted()` in `build/markdown.ts` runs after `marked()` and replaces `[REDACTED]` markers with `<span class="redacted">REDACTED</span>`. The lint-classes checker scans source files (templates, markdown, TS generators) — it does not parse built HTML output. Because no source file contains the literal class `redacted` as written markup, the checker flagged it as a CSS-defined class with no HTML emitter.
 **Learning:** Any build-time string transform that introduces a class name into the HTML output must have that class added to the `JS_APPLIED` allowlist in `build/lint-classes.ts` with a comment naming the transform. The allowlist entry is not suppressing real drift — it is telling the linter that the class appears via a code path it cannot trace statically.
 
+### Markdown files are a hidden HTML producer — the lint only sees them now, not transforms
+**Date:** 2026-04-22
+**Context:** `build/lint-classes.ts` originally scanned `src/templates/**/*.html` and `build/pages.ts` + `build/missing-scientists.ts`. Markdown under `src/content/**/*.md` can contain raw inline HTML with `class="..."` attributes (marked preserves them unchanged). That HTML was invisible to the linter until this session added `listContentFiles` + `stripFencedCodeBlocks` scanning.
+**Learning:** Two coverage gaps now exist: (1) raw HTML in `.md` source files — covered by the new markdown scanner; (2) HTML emitted by build-time transforms (e.g. `transformRedacted()`) — not traceable statically, must be allowlisted. The `redacted` allowlist entry is the template for (2). If a future transform introduces a new class, add it to `JS_APPLIED` with a Category 3 comment. If a future article uses raw `<div class="foo">` inline HTML in markdown, that class will now be picked up by the scanner without an allowlist entry.
+
+### `transformRedacted` clobbers literal "[REDACTED]" bracket text in prose
+**Date:** 2026-04-22
+**Context:** `transformRedacted()` in `build/markdown.ts` runs a string replacement on the rendered HTML after `marked()`. It matches the literal sequence `[REDACTED]` including the brackets.
+**Learning:** If a future article needs to actually display the text `[REDACTED]` as prose (e.g. "the document said [REDACTED] in three places") that text will be incorrectly replaced with a censor-bar span. The workaround at article authoring time is to escape the brackets or rephrase. There is no current per-file opt-out mechanism for the transform.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".
