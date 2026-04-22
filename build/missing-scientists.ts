@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { marked } from "marked";
 import { renderPage } from "./templates.ts";
 import { SITE_ORIGIN } from "./pages.ts";
+import { transformRedacted } from "./markdown.ts";
 
 const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og-default.png`;
 
@@ -278,7 +279,7 @@ function postProcess(html: string, glossary: GlossaryEntry[] = []): string {
     html = applyGlossary(html, glossary);
   }
 
-  return html;
+  return transformRedacted(html);
 }
 
 // ── Heading level adjustment ─────────────────────────────────────────

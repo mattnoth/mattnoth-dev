@@ -151,7 +151,7 @@ async function runDev(): Promise<void> {
   const serveResult = await ctx.serve({
     servedir: DIST_DIR,
     host: "localhost",
-    port: 3000,
+    port: 3001,
   });
 
   const host = serveResult.hosts[0] ?? "localhost";

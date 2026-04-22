@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const SRC_DIR = join(__dirname, "../src");
+const CONTENT_DIR = join(SRC_DIR, "content");
 
 // Allowlist: classes the lint must not flag as drift.
 //
@@ -49,6 +50,12 @@ const JS_APPLIED: ReadonlySet<string> = new Set([
   // docs/decisions.md (Phase 4 ADR-lite). When theme-toggle.ts is updated
   // to use classList for consistency, this entry can be removed.
   "no-transition",
+
+  // ── Category 3: build-time transform classes ────────────────────────
+  // transformRedacted() in markdown.ts converts [REDACTED] markers in
+  // markdown content to <span class="redacted"> during HTML generation.
+  // The lint scans source files, not built output, so it can't see these.
+  "redacted",
 ]);
 
 // Collects all CSS files under a directory (non-recursive, flat — src/styles/ is flat).
@@ -77,6 +84,35 @@ async function listHtmlFiles(dir: string): Promise<string[]> {
     }
   }
   return results;
+}
+
+// Collects all markdown files under a directory tree (recursive).
+async function listContentFiles(dir: string): Promise<string[]> {
+  let results: string[] = [];
+  let entries: Dirent<string>[];
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results = results.concat(await listContentFiles(full));
+    } else if (entry.name.endsWith(".md")) {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
+// Strips fenced code blocks from markdown source before class scanning.
+// Prevents false positives when articles illustrate HTML with class attributes
+// in code examples. Known limitation: indented code blocks are not stripped,
+// but those are uncommon in practice and won't typically contain class="...".
+function stripFencedCodeBlocks(source: string): string {
+  // Matches ``` or ~~~ fences with optional language tag, non-greedy content
+  return source.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\1[ \t]*$/gm, "");
 }
 
 // Extracts class tokens from a string of HTML/template content.
@@ -160,16 +196,18 @@ export async function lintClasses(): Promise<void> {
   ];
 
   // Collect files in parallel
-  const [cssFiles, htmlFiles] = await Promise.all([
+  const [cssFiles, htmlFiles, contentFiles] = await Promise.all([
     listCssFiles(stylesDir),
     listHtmlFiles(templatesDir),
+    listContentFiles(CONTENT_DIR),
   ]);
 
   // Read all files in parallel
-  const [cssContents, htmlContents, generatorSources] = await Promise.all([
+  const [cssContents, htmlContents, generatorSources, contentSources] = await Promise.all([
     Promise.all(cssFiles.map((f) => readFile(f, "utf-8"))),
     Promise.all(htmlFiles.map((f) => readFile(f, "utf-8"))),
     Promise.all(pageGenerators.map((f) => readFile(f, "utf-8").catch(() => ""))),
+    Promise.all(contentFiles.map((f) => readFile(f, "utf-8"))),
   ]);
 
   // Build CSS class set
@@ -185,6 +223,9 @@ export async function lintClasses(): Promise<void> {
   }
   for (const src of generatorSources) {
     htmlClasses = union(htmlClasses, extractPagesClasses(src));
+  }
+  for (const src of contentSources) {
+    htmlClasses = union(htmlClasses, extractHtmlClasses(stripFencedCodeBlocks(src)));
   }
 
   // Compute gaps, excluding JS-applied / allowlisted classes from both sides

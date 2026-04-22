@@ -542,6 +542,36 @@
     }
   }
 
+  /* ── Censor bar ─────────────────────────────────────────────────────── */
+  /*
+    Bar and revealed-text colors are fixed ink values rather than theme
+    tokens: a censor bar is always dark ink regardless of color scheme,
+    and the revealed text must contrast that same dark bar in both themes.
+    Using theme-adaptive tokens here would invert the bar to light in dark
+    mode, breaking the metaphor.
+  */
+  .redacted {
+    display: inline-block;
+    background-color: oklch(11% 0.015 260);
+    color: oklch(11% 0.015 260);
+    border-radius: 0.125rem;
+    padding-inline: var(--space-2xs);
+    cursor: default;
+    transition: color var(--duration-fast) ease;
+
+    &:hover,
+    &:focus-visible,
+    &:focus-within {
+      color: oklch(97% 0.004 80);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .redacted {
+      transition: none;
+    }
+  }
+
   /* ── Empty state — shown when a project/article list is empty ────────── */
   .empty-state {
     grid-column: 1 / -1;

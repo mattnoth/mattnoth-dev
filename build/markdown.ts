@@ -102,6 +102,10 @@ function parseProjectMeta(data: unknown, file: string): ProjectMeta {
   };
 }
 
+export function transformRedacted(html: string): string {
+  return html.replaceAll("[REDACTED]", '<span class="redacted">REDACTED</span>');
+}
+
 const isProd = process.env["NODE_ENV"] === "production";
 
 async function parseFile<T>(
@@ -117,7 +121,7 @@ async function parseFile<T>(
   const readingTime = Math.ceil(wordCount / 200);
 
   // marked returns string | Promise<string> depending on version — await handles both
-  const html = String(await marked(parsed.content));
+  const html = transformRedacted(String(await marked(parsed.content)));
 
   return { meta, html, readingTime };
 }

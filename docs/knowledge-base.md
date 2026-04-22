@@ -322,6 +322,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** After the light-mode hard-default change, the `:root` defaults and the `[data-theme="light"]` block are identical. The block was kept for symmetry with `[data-theme="dark"]` and to make the toggle palette diff readable.
 **Learning:** If you retune light-mode color tokens, you must update both `:root` and `[data-theme="light"]` in `src/styles/tokens.css`. Missing one produces a "looks slightly off on the second toggle click" bug that is hard to trace — the toggle switches to `[data-theme="dark"]` on first click and back to `[data-theme="light"]` on second, where the diverged `:root` values would reappear.
 
+### Build-time markdown transforms that emit classes must be allowlisted in `lint-classes.ts`
+**Date:** 2026-04-22
+**Context:** `transformRedacted()` in `build/markdown.ts` runs after `marked()` and replaces `[REDACTED]` markers with `<span class="redacted">REDACTED</span>`. The lint-classes checker scans source files (templates, markdown, TS generators) — it does not parse built HTML output. Because no source file contains the literal class `redacted` as written markup, the checker flagged it as a CSS-defined class with no HTML emitter.
+**Learning:** Any build-time string transform that introduces a class name into the HTML output must have that class added to the `JS_APPLIED` allowlist in `build/lint-classes.ts` with a comment naming the transform. The allowlist entry is not suppressing real drift — it is telling the linter that the class appears via a code path it cannot trace statically.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".
