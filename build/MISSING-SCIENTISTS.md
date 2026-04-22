@@ -1,6 +1,6 @@
 # Missing Scientists Section
 
-Website section rendering the research dossier on deaths and disappearances of U.S. defense and advanced-research scientists at `/unpublished/missing-scientists/`.
+Website section rendering the research dossier on deaths and disappearances of U.S. defense and advanced-research scientists at `/projects/missing-scientists/`.
 
 ## How it consumes the research repo
 

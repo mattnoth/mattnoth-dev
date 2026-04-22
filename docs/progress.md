@@ -9,20 +9,21 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-22 (missing-scientists mobile polish)
-- Extended `build/missing-scientists.ts` table renderer: `<div class="ms-table-wrap">` wrapping now also applies `max-inline-size: calc(100vw - 2 * var(--container-padding))` using the actual page padding token.
-- Added table CSS to `src/styles/missing-scientists.css`: collapsed borders, header backgrounds via `color-mix`, `overflow-wrap: anywhere`, 7th-column hide on narrow viewports.
-- Converted `.ms-nav__links` to a never-wrapping horizontal scroll strip with `inline-size: max-content` and hidden scrollbar; removed the 40rem wrapping breakpoint.
-- Implemented mobile TOC overlay in `build/missing-scientists.ts`: `<details>` summary as compact trigger, `<ol>` as absolute-positioned dropdown with light-dismiss JS (click-outside + link-click closes it), starts closed on mobile via inline `<script>`.
-- On desktop (≥64rem), TOC `<summary>` hidden and `<ol>` forced visible via CSS regardless of `<details>` open state.
-- Grid layout uses `:has(.ms-toc)` to only allocate sidebar column when TOC is present; pages without a TOC get single-column layout.
-- Tightened mobile vertical spacing: header margin and layout grid gap reduced so "Abstract" sits closer to title.
-- Organized research prompts into `completed/` and `queued/` folders; created `prompt-mobile-toc-overlay.md`; updated `TODO-research.md`.
+## Last session — 2026-04-22 (missing-scientists URL migration + project card integration)
+- Moved Missing Scientists dossier URL from `/unpublished/missing-scientists/` to `/projects/missing-scientists/` across all build scripts, templates, and TS modules.
+- Added `landing?: string` field to `ProjectMeta` interface in `build/markdown.ts`; `projectCard()` in `build/pages.ts` uses it as the card href and skips standalone project.html generation for landing-based projects.
+- Created `src/content/projects/missing-scientists.md` (frontmatter-only with `landing` field) so MS appears as a featured project card on home page and projects index.
+- Added AI-disclosure / methodology / GitHub-link section to top of Transparency page in `build/missing-scientists.ts`.
+- Added 301 redirect in `netlify.toml` from `/unpublished/missing-scientists/*` to `/projects/missing-scientists/:splat`.
+- Updated all back-links ("Back to research" → "Back to overview") and breadcrumbs ("Research" → "Overview") across `build/missing-scientists.ts`, `src/templates/ms-diagram.html`, `src/templates/ms-timeline.html`, `src/templates/ms-page.html`.
+- Updated BASE constant in `build/missing-scientists.ts`, `src/ts/modules/ms-diagram.ts`, `src/ts/modules/ms-timeline.ts`, and comment path in `src/styles/missing-scientists.css`.
 
 ## Next session
-Test TOC overlay and table scroll at multiple viewports (consider Playwright). Then address `<hr>` alignment and table overflow edge cases on missing-scientists pages.
+Manual browser testing: start dev server, click project card on home page, verify all MS tabs load, check Network tab for 200s on `/projects/missing-scientists/data/*.json` fetches. Then decide on noindex flip timing.
 
 ## Open questions
+- When to flip `noindex` → `index, follow` and add MS to sitemap (deferred per task spec).
+- SEO framing for the dossier before indexing.
 - Branch scope drift: `feat/ms-mobile-tables` (now `feat/pre-push-safeguard`) contains unrelated work. Before merging/PR, consider rebasing or squash-merging cleanly onto main.
 - Tables still touch the right edge on some intermediate display sizes — may need Playwright testing to confirm.
 - `<hr>` alignment on missing-scientists pages on mobile not yet addressed.

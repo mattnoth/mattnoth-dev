@@ -1,5 +1,5 @@
 // build/missing-scientists.ts
-// Generates the /unpublished/missing-scientists/ section by consuming
+// Generates the /projects/missing-scientists/ section by consuming
 // research artifacts from the sibling research repository.
 
 import { readFile, readdir, mkdir, copyFile, writeFile, access } from "node:fs/promises";
@@ -45,7 +45,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const RESEARCH_DIR = process.env["MS_RESEARCH_DIR"]
   ?? join(__dirname, "../research-missing-scientists");
 const DIST_DIR = join(__dirname, "../dist");
-const BASE = "/unpublished/missing-scientists";
+const BASE = "/projects/missing-scientists";
 
 const SOCIAL_LINKS_HTML = [
   '<li><a href="https://github.com/mattnoth" rel="noopener noreferrer" target="_blank">GitHub</a></li>',
@@ -463,7 +463,7 @@ async function generateLandingPage(version: string, lastUpdated: string): Promis
     prev_next: "",
     case_list: generateCaseList(),
     version_info: `<p class="ms-version">Research ${version} &middot; Updated ${lastUpdated}</p>`,
-  }, "unpublished/missing-scientists/index.html");
+  }, "projects/missing-scientists/index.html");
 }
 
 async function generateCasePages(): Promise<void> {
@@ -509,7 +509,7 @@ async function generateCasePages(): Promise<void> {
       }),
       page_title: title || name,
       ms_nav: generateNav(`${BASE}/cases/${slug}/`),
-      breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">${name}</span></nav>`,
+      breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Overview</a> &rsaquo; <span aria-current="page">${name}</span></nav>`,
       meta: "",
       analysis_nav: "",
       toc,
@@ -517,7 +517,7 @@ async function generateCasePages(): Promise<void> {
       prev_next: prevNext,
       case_list: generateCaseList(slug),
       version_info: "",
-    }, `unpublished/missing-scientists/cases/${slug}/index.html`);
+    }, `projects/missing-scientists/cases/${slug}/index.html`);
   }
 }
 
@@ -560,7 +560,7 @@ async function generateAnalysisPages(): Promise<void> {
       }),
       page_title: title || label,
       ms_nav: generateNav(`${BASE}/analysis/${slug}/`),
-      breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Analysis</span></nav>`,
+      breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Overview</a> &rsaquo; <span aria-current="page">Analysis</span></nav>`,
       meta: "",
       analysis_nav: navHtml,
       toc,
@@ -568,7 +568,7 @@ async function generateAnalysisPages(): Promise<void> {
       prev_next: "",
       case_list: "",
       version_info: "",
-    }, `unpublished/missing-scientists/analysis/${slug}/index.html`);
+    }, `projects/missing-scientists/analysis/${slug}/index.html`);
   }
 }
 
@@ -581,7 +581,7 @@ async function generateDiagramPage(): Promise<void> {
     ...seoSlots({ pageUrl: diagramUrl }),
     page_title: "Connection Diagram",
     ms_nav: generateNav(`${BASE}/diagram/`),
-  }, "unpublished/missing-scientists/diagram/index.html");
+  }, "projects/missing-scientists/diagram/index.html");
 }
 
 async function generateTimelinePage(): Promise<void> {
@@ -593,7 +593,7 @@ async function generateTimelinePage(): Promise<void> {
     ...seoSlots({ pageUrl: timelineUrl }),
     page_title: "Event Timeline",
     ms_nav: generateNav(`${BASE}/timeline/`),
-  }, "unpublished/missing-scientists/timeline/index.html");
+  }, "projects/missing-scientists/timeline/index.html");
 }
 
 async function generateSourcesPage(): Promise<void> {
@@ -641,7 +641,7 @@ async function generateSourcesPage(): Promise<void> {
     ...seoSlots({ pageUrl: sourcesUrl }),
     page_title: "Sources & Commentary",
     ms_nav: generateNav(`${BASE}/sources/`),
-    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Sources</span></nav>`,
+    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Overview</a> &rsaquo; <span aria-current="page">Sources</span></nav>`,
     meta: "",
     analysis_nav: "",
     toc,
@@ -649,7 +649,7 @@ async function generateSourcesPage(): Promise<void> {
     prev_next: "",
     case_list: "",
     version_info: "",
-  }, "unpublished/missing-scientists/sources/index.html");
+  }, "projects/missing-scientists/sources/index.html");
 }
 
 async function generateMethodologyPage(): Promise<void> {
@@ -665,7 +665,7 @@ async function generateMethodologyPage(): Promise<void> {
     ...seoSlots({ pageUrl: methodologyUrl }),
     page_title: title || "Methodology",
     ms_nav: generateNav(`${BASE}/methodology/`),
-    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Methodology</span></nav>`,
+    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Overview</a> &rsaquo; <span aria-current="page">Methodology</span></nav>`,
     meta: "",
     analysis_nav: "",
     toc,
@@ -673,11 +673,22 @@ async function generateMethodologyPage(): Promise<void> {
     prev_next: "",
     case_list: "",
     version_info: "",
-  }, "unpublished/missing-scientists/methodology/index.html");
+  }, "projects/missing-scientists/methodology/index.html");
 }
 
 async function generateTransparencyPage(): Promise<void> {
   let content = "";
+
+  // Project overview & disclosure — appears at the top of Transparency
+  content += `<section class="ms-transparency-section">
+<h2>About This Project</h2>
+<p>This dossier tracks a cluster of U.S. defense and advanced-research scientists who died or disappeared between 2022 and 2026. It compiles publicly available information into a structured, evidence-based format with source tiering, confidence ratings, and cross-case analysis.</p>
+<h3>AI-Assisted Research</h3>
+<p>This project was built using AI-assisted research methods. <a href="https://claude.ai">Claude</a> (Anthropic) was used as a research partner under human direction — surfacing sources, structuring evidence, identifying connections, and drafting analysis. All editorial decisions, source evaluation, and publication choices were made by the human researcher.</p>
+<p>The methodology, including the source-tier taxonomy and confidence rating system, is documented on the <a href="${BASE}/methodology/">Methodology</a> page.</p>
+<h3>Source Code</h3>
+<p>The research repository, including raw data, analysis scripts, and the full research log, is available on GitHub: <a href="https://github.com/mattnoth/research-missing-scientists" rel="noopener noreferrer" target="_blank">mattnoth/research-missing-scientists</a>.</p>
+</section>\n`;
 
   const sections = [
     { file: "logs/contradictions.md", label: "Contradictions" },
@@ -705,7 +716,7 @@ async function generateTransparencyPage(): Promise<void> {
     ...seoSlots({ pageUrl: transparencyUrl }),
     page_title: "Transparency",
     ms_nav: generateNav(`${BASE}/transparency/`),
-    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Research</a> &rsaquo; <span aria-current="page">Transparency</span></nav>`,
+    breadcrumb: `<nav class="ms-breadcrumb" aria-label="Breadcrumb"><a href="${BASE}/">Overview</a> &rsaquo; <span aria-current="page">Transparency</span></nav>`,
     meta: "",
     analysis_nav: "",
     toc,
@@ -713,11 +724,11 @@ async function generateTransparencyPage(): Promise<void> {
     prev_next: "",
     case_list: "",
     version_info: "",
-  }, "unpublished/missing-scientists/transparency/index.html");
+  }, "projects/missing-scientists/transparency/index.html");
 }
 
 async function copyDataFiles(): Promise<void> {
-  const dataDir = join(DIST_DIR, "unpublished/missing-scientists/data");
+  const dataDir = join(DIST_DIR, "projects/missing-scientists/data");
   await mkdir(dataDir, { recursive: true });
   await Promise.all([
     copyFile(join(RESEARCH_DIR, "data/diagram-data.json"), join(dataDir, "diagram-data.json")),

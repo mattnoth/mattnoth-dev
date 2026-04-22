@@ -42,7 +42,7 @@ interface SimEdge extends d3.SimulationLinkDatum<SimNode> {
 
 // ── Constants ─────────────────────────────────────────────────────────
 
-const BASE = '/unpublished/missing-scientists';
+const BASE = '/projects/missing-scientists';
 
 const NODE_COLORS: Record<string, string> = {
   person:      'oklch(55% 0.14 248)',

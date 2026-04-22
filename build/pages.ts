@@ -68,7 +68,7 @@ function articleCard(item: ParsedContent<ArticleMeta>, level: HeadingLevel = 'h2
 }
 
 function projectCard(item: ParsedContent<ProjectMeta>, level: HeadingLevel = 'h2'): string {
-  const { title, slug, description, tech, url, github } = item.meta;
+  const { title, slug, description, tech, url, github, landing } = item.meta;
   const techHtml = tech.map((t) => `<span class="tech">${t}</span>`).join("");
   const links = [
     url ? `<a href="${url}">Live</a>` : "",
@@ -77,7 +77,7 @@ function projectCard(item: ParsedContent<ProjectMeta>, level: HeadingLevel = 'h2
     .filter(Boolean)
     .join(" ");
   return `<article class="card">
-  <${level}><a href="/projects/${slug}/">${title}</a></${level}>
+  <${level}><a href="${landing ?? `/projects/${slug}/`}">${title}</a></${level}>
   <p>${description}</p>
   <div class="tech-stack">${techHtml}</div>
   ${links ? `<div class="links">${links}</div>` : ""}
@@ -213,6 +213,7 @@ export async function generateAllPages(
 
   // Individual projects
   for (const item of projects) {
+    if (item.meta.landing) continue; // landing URL produced elsewhere
     const { title, slug, description, tech, url, github } = item.meta;
     const techHtml = tech.map((t) => `<span class="tech">${t}</span>`).join("");
     const links = [

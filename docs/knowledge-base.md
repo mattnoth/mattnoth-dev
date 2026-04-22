@@ -362,6 +362,11 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** `.ms-table-wrap` needed a `max-inline-size` cap to prevent double-scroll. First pass used `calc(100vw - 2 * var(--space-md))`. The space-md token and the actual container padding are different values.
 **Learning:** `--container-padding` is the token that defines the actual horizontal inset of the page content area. Use `calc(100vw - 2 * var(--container-padding))` for anything that needs to be capped at viewport width minus the real page margins. Using `--space-md` produces a visually correct result only by coincidence if the two tokens happen to match.
 
+### Comments and build-doc path references also need updating on URL renames
+**Date:** 2026-04-22
+**Context:** Renaming the Missing Scientists dossier URL from `/unpublished/missing-scientists/` to `/projects/missing-scientists/`. The reviewer caught that `src/styles/missing-scientists.css` still contained a comment referencing the old path after all source files were updated.
+**Learning:** CSS comments and build doc prose (e.g. `build/MISSING-SCIENTISTS.md`) often contain path references that a mechanical find-and-replace on source code misses. On any path rename, run a dist-wide and repo-wide grep for the old string — not just a code search — before considering the rename complete.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".

@@ -56,3 +56,10 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirect old /unpublished/missing-scientists/ URLs to /projects/missing-scientists/
+[[redirects]]
+  from = "/unpublished/missing-scientists/*"
+  to = "/projects/missing-scientists/:splat"
+  status = 301
+  force = true

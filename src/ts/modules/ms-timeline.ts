@@ -27,7 +27,7 @@ interface PlottedEvent extends TimelineEvent {
 
 // ── Constants ─────────────────────────────────────────────────────────
 
-const BASE = '/unpublished/missing-scientists';
+const BASE = '/projects/missing-scientists';
 
 const EVENT_COLORS: Record<string, string> = {
   disappearance:           'oklch(55% 0.15 30)',

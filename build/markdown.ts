@@ -20,6 +20,7 @@ export interface ProjectMeta {
   url?: string;
   github?: string;
   featured?: boolean;
+  landing?: string;
   draft?: boolean;
 }
 
@@ -89,6 +90,7 @@ function parseProjectMeta(data: unknown, file: string): ProjectMeta {
   const url = optionalString(data, "url");
   const github = optionalString(data, "github");
   const featured = optionalBoolean(data, "featured");
+  const landing = optionalString(data, "landing");
   const draft = optionalBoolean(data, "draft");
   return {
     title,
@@ -98,6 +100,7 @@ function parseProjectMeta(data: unknown, file: string): ProjectMeta {
     ...(url !== undefined && { url }),
     ...(github !== undefined && { github }),
     ...(featured !== undefined && { featured }),
+    ...(landing !== undefined && { landing }),
     ...(draft !== undefined && { draft }),
   };
 }
