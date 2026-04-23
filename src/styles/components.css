@@ -287,24 +287,6 @@
     }
   }
 
-  /* ── Page header (list pages: /articles/, /projects/) ────────────── */
-  .page-header {
-    padding-block: var(--space-2xl) var(--space-xl);
-    border-block-end: 0.0625rem solid var(--color-border);
-    margin-block-end: var(--space-2xl);
-
-    & h1 {
-      margin-block-end: var(--space-sm);
-    }
-  }
-
-  .page-header__lead {
-    font-size: var(--text-lg);
-    color: var(--color-text-muted);
-    max-inline-size: 55ch;
-    margin: 0;
-  }
-
   /* ── Article header (article detail page) ────────────────────────── */
   /* Lives in layout — it's the top region of a one-off page, not a reusable widget */
   .article-header {
