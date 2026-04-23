@@ -9,22 +9,22 @@
 - [x] Phase 5 — Content & templates
 - [x] Phase 6 — Integration, polish, deploy
 
-## Last session — 2026-04-22 (missing-scientists URL migration + project card integration)
-- Moved Missing Scientists dossier URL from `/unpublished/missing-scientists/` to `/projects/missing-scientists/` across all build scripts, templates, and TS modules.
-- Added `landing?: string` field to `ProjectMeta` interface in `build/markdown.ts`; `projectCard()` in `build/pages.ts` uses it as the card href and skips standalone project.html generation for landing-based projects.
-- Created `src/content/projects/missing-scientists.md` (frontmatter-only with `landing` field) so MS appears as a featured project card on home page and projects index.
-- Added AI-disclosure / methodology / GitHub-link section to top of Transparency page in `build/missing-scientists.ts`.
-- Added 301 redirect in `netlify.toml` from `/unpublished/missing-scientists/*` to `/projects/missing-scientists/:splat`.
-- Updated all back-links ("Back to research" → "Back to overview") and breadcrumbs ("Research" → "Overview") across `build/missing-scientists.ts`, `src/templates/ms-diagram.html`, `src/templates/ms-timeline.html`, `src/templates/ms-page.html`.
-- Updated BASE constant in `build/missing-scientists.ts`, `src/ts/modules/ms-diagram.ts`, `src/ts/modules/ms-timeline.ts`, and comment path in `src/styles/missing-scientists.css`.
+## Last session — 2026-04-23 (redacted click-to-reveal fix + mobile layout fixes)
+- Fixed redacted censor bar click-to-reveal: replaced stuck-open `:focus-visible`/`:focus-within` CSS reveal with a JS click-triggered 600ms peek animation that returns to hidden state (`src/styles/components.css`, `src/ts/main.ts`).
+- Fixed redacted bar dark mode: reverted from `var(--color-text)`/`var(--color-bg)` tokens to fixed ink colors (`oklch(11% 0.015 260)` bar, `oklch(97% 0.004 80)` revealed text) so bar stays dark in both themes.
+- Removed `tabindex="0"` from redacted spans in `build/markdown.ts` since focus-based reveal is no longer used.
+- Added `redacted--peeking` to `JS_APPLIED` allowlist in `build/lint-classes.ts`.
+- Fixed Missing Scientists dossier mobile overflow: `.ms-layout` grid changed from `1fr` to `minmax(0, 1fr)`, added `min-inline-size: 0` to `.ms-prose` (`src/styles/missing-scientists.css`).
+- Used document-level event delegation for the redacted click handler in `src/ts/main.ts` (spans have no single wrapper mount point).
 
 ## Next session
-Manual browser testing: start dev server, click project card on home page, verify all MS tabs load, check Network tab for 200s on `/projects/missing-scientists/data/*.json` fetches. Then decide on noindex flip timing.
+Test the deployed redacted peek animation and dossier mobile layout on an actual phone to confirm fixes work as expected. Then pick up the glossary/reference page todo (acronyms and locations of interest — decide where it lives in the site hierarchy) or other polish items.
 
 ## Open questions
 - When to flip `noindex` → `index, follow` and add MS to sitemap (deferred per task spec).
 - SEO framing for the dossier before indexing.
 - Branch scope drift: `feat/ms-mobile-tables` (now `feat/pre-push-safeguard`) contains unrelated work. Before merging/PR, consider rebasing or squash-merging cleanly onto main.
+- Glossary/reference page for acronyms and locations of interest in the Missing Scientists dossier — where in the site hierarchy should it live?
 - Tables still touch the right edge on some intermediate display sizes — may need Playwright testing to confirm.
 - `<hr>` alignment on missing-scientists pages on mobile not yet addressed.
 - Mobile TOC overlay not tested on actual devices.

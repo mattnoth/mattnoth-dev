@@ -341,6 +341,16 @@ Only log decisions that are **non-obvious or reversible**. "We used TypeScript" 
 **Decision:** Added a `[[redirects]]` block in `netlify.toml`: `from = "/unpublished/missing-scientists/*"`, `to = "/projects/missing-scientists/:splat"`, `status = 301`.
 **Consequences:** Old URLs are permanently forwarded. The `research-missing-scientists` submodule and its data files are unaffected — only output paths changed. If the dossier URL changes again, the redirect chain must be extended or collapsed.
 
+## 2026-04-23 — Redacted reveal as click-triggered animation, not CSS focus state
+**Context:** The `.redacted` censor bar had a CSS-only reveal tied to `:focus-visible`/`:focus-within`. The behavior was broken: focus state persisted after keyboard navigation, leaving the text visible indefinitely. Options: (a) keep CSS-only with a different selector, (b) JS click handler adding a class that triggers a CSS animation.
+**Decision:** JS click handler in `src/ts/main.ts` using document-level event delegation. Click adds `redacted--peeking` class which triggers a 600ms CSS animation (peek, hold, return). Class is not removed by JS — the animation drives the visual lifecycle. `tabindex="0"` removed from redacted spans since keyboard focus is no longer part of the reveal mechanism.
+**Consequences:** Reveal is transient and click-only. Screen readers that never click will not trigger the peek. Redacted spans are no longer focusable, which removes any keyboard path to the content — this is consistent with the censorship metaphor. Event delegation was chosen over per-element listeners because redacted spans are scattered in prose with no single wrapper mount point.
+
+## 2026-04-23 — Fixed ink colors on censor bar rather than theme tokens
+**Context:** A prior commit (`cb826ad`) changed the `.redacted` bar from fixed `oklch` values to `var(--color-text)` and `var(--color-bg)` so the bar would "participate in theming". In dark mode, `--color-bg` is near-black, so the bar became near-black-on-near-black — invisible. The comment in the code still said "fixed ink" but the code contradicted it.
+**Decision:** Reverted to fixed `oklch(11% 0.015 260)` for the bar and `oklch(97% 0.004 80)` for revealed text. Both values are hardcoded and do not reference theme tokens.
+**Consequences:** Censor bar is always dark ink regardless of theme. The dark-mode override block in `[data-theme="dark"]` does not affect it. See also the 2026-04-22 decision on this same topic — this commit is the correction of a regression introduced after that decision was made.
+
 ## 2026-04-12 — About paragraph 2 uses two-sentence structure (thesis + gerund expansion), not em-dash list
 **Context:** About paragraph 2 needed to describe Matt's current AI infrastructure work without burning Harness brief vocabulary. Two structural options debated: (a) "AI infrastructure for coding agents — engineering context, MCP servers, multi-agent workflows" (em-dash list), (b) "Lately I've been building AI infrastructure for coding agents. Designing multi-agent workflows, building custom MCP servers to interface with our stack, and engineering the context layer that ties them together." (two sentences).
 **Decision:** Option (b): thesis sentence + gerund-fragment expansion. Matt made a post-edit cut dropping "That's meant" from the start of sentence 2, making it a gerund fragment.

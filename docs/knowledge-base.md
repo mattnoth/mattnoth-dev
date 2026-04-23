@@ -367,6 +367,16 @@ The `progress-tracker` subagent appends to this file at the end of each session 
 **Context:** Renaming the Missing Scientists dossier URL from `/unpublished/missing-scientists/` to `/projects/missing-scientists/`. The reviewer caught that `src/styles/missing-scientists.css` still contained a comment referencing the old path after all source files were updated.
 **Learning:** CSS comments and build doc prose (e.g. `build/MISSING-SCIENTISTS.md`) often contain path references that a mechanical find-and-replace on source code misses. On any path rename, run a dist-wide and repo-wide grep for the old string — not just a code search — before considering the rename complete.
 
+### CSS Grid `1fr` track allows wide children to inflate past the viewport
+**Date:** 2026-04-23
+**Context:** `.ms-layout` used `1fr` columns, which is shorthand for `minmax(auto, 1fr)`. Tables with `min-inline-size: max-content` inside the grid track caused horizontal overflow on mobile.
+**Learning:** `1fr` does not constrain the minimum to zero — `auto` minimum lets content size inflate the track past the available space. Always use `minmax(0, 1fr)` in any layout that could contain wide content (tables, pre blocks, long URLs). Also add `min-inline-size: 0` to the grid child that contains the wide content. The `minmax(0, ...)` pattern is the same one documented for `body { grid-template-columns }` — it applies recursively at every grid level.
+
+### `:focus-visible` / `:focus-within` on non-input elements can produce stuck-open state
+**Date:** 2026-04-23
+**Context:** The redacted span reveal was originally triggered by `:focus-visible` or `:focus-within`. Because spans are not interactive elements by default, focus state could persist in ways that made the revealed text stay visible permanently after a keyboard navigation event.
+**Learning:** CSS-only reveal via `:focus-visible` is fragile on non-input elements. If reveal must be a transient effect (peek and return), use a JS-triggered class with a CSS animation and `animation-fill-mode: forwards` set to reverse, or use an explicit class add/remove with a timeout. The 600ms peek animation with `redacted--peeking` added and then left to finish (class not removed) is the pattern that landed here.
+
 ### Stale file reads at session start can produce no-op delegations
 **Date:** 2026-04-12
 **Context:** Main agent read `src/templates/base.html` at session start, found no footer email line, and delegated an edit to add one. The line had already landed in the previous commit (`caad3ff`). The delegated Edit was a silent no-op — `git diff src/templates/base.html` was empty after the "edit".
