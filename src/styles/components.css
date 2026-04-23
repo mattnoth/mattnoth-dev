@@ -488,8 +488,8 @@
   */
   .redacted {
     display: inline-block;
-    background-color: oklch(11% 0.015 260);
-    color: oklch(11% 0.015 260);
+    background-color: var(--color-text);
+    color: var(--color-text);
     border-radius: 0.125rem;
     padding-inline: var(--space-2xs);
     cursor: default;
@@ -498,7 +498,7 @@
     &:hover,
     &:focus-visible,
     &:focus-within {
-      color: oklch(97% 0.004 80);
+      color: var(--color-bg);
     }
   }
 
