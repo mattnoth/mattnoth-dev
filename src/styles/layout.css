@@ -72,53 +72,35 @@
     gap: var(--space-lg);
   }
 
-  /* Hero section */
+  /* Hero section — all three elements flow as a single wrapping baseline row */
   .hero {
-    /* top: md at mobile (pulls block closer to header), lg at wide; bottom: md at mobile, lg at wide */
-    padding-block: var(--space-md) var(--space-md);
+    padding-block: var(--space-md);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4ch;
 
     @media (min-width: 48rem) {
       padding-block: var(--space-lg);
     }
 
     & .hero__eyebrow {
+      margin: 0;
       font-size: var(--text-sm);
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--color-accent);
-      margin-block-end: var(--space-sm);
     }
 
     & .hero__heading {
-      margin-block-end: var(--space-sm);
-
-      @media (min-width: 48rem) {
-        margin-block-end: var(--space-md);
-      }
+      margin: 0;
     }
 
     & .hero__lead {
+      margin: 0;
       font-size: var(--text-lg);
       color: var(--color-text-muted);
-      max-inline-size: 50ch;
-      margin-block-end: var(--space-md);
-
-      @media (min-width: 48rem) {
-        margin-block-end: var(--space-lg);
-      }
-    }
-
-    /* When two leads stack, tighten the inner gap — xl is reserved for the last lead → actions gap */
-    & .hero__lead:has(+ .hero__lead) {
-      margin-block-end: var(--space-sm);
-    }
-
-    & .hero__actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-      align-items: center;
     }
   }
 

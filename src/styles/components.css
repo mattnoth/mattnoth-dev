@@ -168,54 +168,8 @@
     }
   }
 
-  /* ── Button ───────────────────────────────────────────────────────── */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-    padding-inline: var(--space-lg);
-    padding-block: var(--space-sm);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    line-height: 1;
-    border-radius: var(--radius-md);
-    border: 0.125rem solid transparent;
-    background-color: var(--color-accent);
-    color: var(--color-on-accent);
-    text-decoration: none;
-    cursor: pointer;
-    transition:
-      background-color var(--duration-fast) ease,
-      transform var(--duration-fast) ease,
-      box-shadow var(--duration-fast) ease;
-
-    &:hover {
-      background-color: var(--color-accent-hover);
-      transform: translateY(-0.0625rem);
-      box-shadow: 0 0.25rem 0.75rem color-mix(in oklch, var(--color-accent) 35%, transparent);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-
-    &.btn--outline {
-      background-color: transparent;
-      border-color: var(--color-border);
-      color: var(--color-text);
-
-      &:hover {
-        border-color: var(--color-accent);
-        color: var(--color-accent);
-        background-color: color-mix(in oklch, var(--color-accent) 8%, transparent);
-        box-shadow: none;
-      }
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .card,
-    .btn {
+    .card {
       transition: none;
     }
   }
