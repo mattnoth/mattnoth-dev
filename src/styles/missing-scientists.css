@@ -111,20 +111,21 @@
   .ms-layout {
     display: grid;
     gap: var(--space-sm);
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
 
     @media (min-width: 64rem) {
       gap: var(--space-xl);
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
 
       &:has(.ms-toc) {
-        grid-template-columns: 15rem 1fr;
+        grid-template-columns: 15rem minmax(0, 1fr);
       }
     }
   }
 
   .ms-prose {
     max-inline-size: 75ch;
+    min-inline-size: 0;
     overflow-wrap: anywhere;
 
     /* Make links clearly visible in research prose */

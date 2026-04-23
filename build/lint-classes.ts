@@ -56,6 +56,7 @@ const JS_APPLIED: ReadonlySet<string> = new Set([
   // markdown content to <span class="redacted"> during HTML generation.
   // The lint scans source files, not built output, so it can't see these.
   "redacted",
+  "redacted--peeking", // main.ts — toggled on click for peek animation
 ]);
 
 // Collects all CSS files under a directory (non-recursive, flat — src/styles/ is flat).

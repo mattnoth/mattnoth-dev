@@ -41,6 +41,20 @@ async function mountModules(): Promise<void> {
   }
 }
 
+// Delegated click handler for .redacted censor bars.
+// CSS handles hover-reveal; this adds a "peek" animation on click
+// (adds .redacted--peeking, removes it when the 600ms keyframe ends).
+document.addEventListener('click', (e) => {
+  const target = (e.target as Element).closest('.redacted');
+  if (!(target instanceof HTMLElement)) return;
+  if (target.classList.contains('redacted--peeking')) return;
+
+  target.classList.add('redacted--peeking');
+  target.addEventListener('animationend', () => {
+    target.classList.remove('redacted--peeking');
+  }, { once: true });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   void mountModules();
 });
