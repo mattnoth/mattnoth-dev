@@ -920,6 +920,10 @@
     inline-size: 100%;
     min-inline-size: max-content;
     border-collapse: collapse;
+
+    @media (min-width: 48rem) {
+      min-inline-size: 0;
+    }
     font-size: var(--text-sm);
   }
 
