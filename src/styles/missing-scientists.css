@@ -910,7 +910,7 @@
   .ms-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    max-inline-size: calc(100vw - 2 * var(--container-padding));
+    max-inline-size: 100%;
     margin-block: var(--space-md);
     border: 0.0625rem solid var(--color-border);
     border-radius: var(--radius-md);
@@ -923,6 +923,7 @@
 
     @media (min-width: 48rem) {
       min-inline-size: 0;
+      table-layout: fixed;
     }
     font-size: var(--text-sm);
   }

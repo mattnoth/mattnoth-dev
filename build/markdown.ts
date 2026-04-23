@@ -106,7 +106,7 @@ function parseProjectMeta(data: unknown, file: string): ProjectMeta {
 }
 
 export function transformRedacted(html: string): string {
-  return html.replaceAll("[REDACTED]", '<span class="redacted">REDACTED</span>');
+  return html.replaceAll("[REDACTED]", '<span class="redacted" tabindex="0">REDACTED</span>');
 }
 
 const isProd = process.env["NODE_ENV"] === "production";
