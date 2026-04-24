@@ -4,7 +4,7 @@ slug: "circle-of-slop"
 date: "2026-04-22"
 tags: ["ai", "education", "opinion"]
 description: "A private email to my cousin, published as-is: how education might adapt to LLMs so students don't use AI to complete tasks written by AI."
-draft: false
+draft: true
 ---
 
 My cousin Mike has a set of double ds. Double doctorate, one in economics (can't remember the other right now, sorry Mike!). We like to [REDACTED] sometimes and talk about stuff, and unsurprisingly we cover a wide array of topics. Music, the economy, inflation, affairs in the middle east, our mutual disdain for Trump, math. I'll talk about the work i'm doing with AI, and he'll bring up something like "bayesian graphs". Over the Penjamin ([REDACTED]) he brought up how higher education is basically [REDACTED] -- students use AI to complete tasks written by AI, a "Circle of Slop". The conversation went to other places from there but the idea sat with me. People are going to say this is one of those [/r/ThatHappened/](https://www.reddit.com/r/ThatHappened/)  moments, where I think I'm cool or something. This all really happened. We really are that weird.
